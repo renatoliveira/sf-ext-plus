@@ -38,6 +38,7 @@ const RAW_RUNTIME_STATE =
           ["esbuild", "npm:0.25.2"],\
           ["eslint", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:9.24.0"],\
           ["npm-run-all", "npm:4.1.5"],\
+          ["prettier", "npm:3.5.3"],\
           ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"],\
           ["xml2js", "npm:0.6.2"]\
         ],\
@@ -621,14 +622,6 @@ const RAW_RUNTIME_STATE =
           ["undici-types", "npm:6.19.8"]\
         ],\
         "linkType": "HARD"\
-      }],\
-      ["npm:22.14.1", {\
-        "packageLocation": "../../../.yarn/berry/cache/@types-node-npm-22.14.1-ff7e0a29d7-10c0.zip/node_modules/@types/node/",\
-        "packageDependencies": [\
-          ["@types/node", "npm:22.14.1"],\
-          ["undici-types", "npm:6.21.0"]\
-        ],\
-        "linkType": "HARD"\
       }]\
     ]],\
     ["@types/vscode", [\
@@ -645,7 +638,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/@types-xml2js-npm-0.4.14-595cc9c3cf-10c0.zip/node_modules/@types/xml2js/",\
         "packageDependencies": [\
           ["@types/xml2js", "npm:0.4.14"],\
-          ["@types/node", "npm:22.14.1"]\
+          ["@types/node", "npm:20.17.30"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3684,6 +3677,15 @@ const RAW_RUNTIME_STATE =
         "linkType": "HARD"\
       }]\
     ]],\
+    ["prettier", [\
+      ["npm:3.5.3", {\
+        "packageLocation": "./.yarn/unplugged/prettier-npm-3.5.3-787132ce04/node_modules/prettier/",\
+        "packageDependencies": [\
+          ["prettier", "npm:3.5.3"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
     ["proc-log", [\
       ["npm:5.0.0", {\
         "packageLocation": "../../../.yarn/berry/cache/proc-log-npm-5.0.0-405173f9b4-10c0.zip/node_modules/proc-log/",\
@@ -4035,6 +4037,7 @@ const RAW_RUNTIME_STATE =
           ["esbuild", "npm:0.25.2"],\
           ["eslint", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:9.24.0"],\
           ["npm-run-all", "npm:4.1.5"],\
+          ["prettier", "npm:3.5.3"],\
           ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"],\
           ["xml2js", "npm:0.6.2"]\
         ],\
@@ -4592,13 +4595,6 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/undici-types-npm-6.19.8-9f12285b7a-10c0.zip/node_modules/undici-types/",\
         "packageDependencies": [\
           ["undici-types", "npm:6.19.8"]\
-        ],\
-        "linkType": "HARD"\
-      }],\
-      ["npm:6.21.0", {\
-        "packageLocation": "../../../.yarn/berry/cache/undici-types-npm-6.21.0-eb2b0ed56a-10c0.zip/node_modules/undici-types/",\
-        "packageDependencies": [\
-          ["undici-types", "npm:6.21.0"]\
         ],\
         "linkType": "HARD"\
       }]\
