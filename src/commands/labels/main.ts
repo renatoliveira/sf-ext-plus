@@ -78,7 +78,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
                 return completionItems;
             }
-        }
+        },
+        '.' // Add trigger character to automatically show completions after typing '.'
     );
 
     context.subscriptions.push(labelCompletionProvider);
