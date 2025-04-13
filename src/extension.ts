@@ -3,8 +3,8 @@ import { activate as activateLabelsAutoComplete } from './commands/labels/main';
 
 export function activate(context: vscode.ExtensionContext) {
 	// Register the command for manual invocation if needed
-	const disposable = vscode.commands.registerCommand('sf-ext-plus.loadLabels', () => {
-		activateLabelsAutoComplete(context);
+	const disposable = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', () => {
+		activateLabelsAutoComplete(context, true);
 	});
 
 	context.subscriptions.push(disposable);

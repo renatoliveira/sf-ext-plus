@@ -16,13 +16,21 @@ interface LabelMap {
 
 let salesforceLabels: LabelMap = {};
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext, forceLoad: Boolean = false) {
+
+    console.log('Activating Salesforce Labels AutoComplete Extension');
+    console.log(`salesforceLabels: ${JSON.stringify(salesforceLabels)}`);
+
+    // Check if labels are already loaded
+    if (!forceLoad && Object.keys(salesforceLabels).length > 0) {
+        vscode.window.showInformationMessage('Salesforce labels are already loaded');
+        return;
+    }
+
     const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.loadSalesforceLabels', loadLabelsInWorkspace);
 
     context.subscriptions.push(loadLabelsCommand);
 
-    console.log(`Current language: ${vscode.window.activeTextEditor?.document.languageId}`);
-    console.log(`Current file: ${vscode.window.activeTextEditor?.document.fileName}`);
 
     // Register a completion provider for Apex files (.cls)
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
@@ -34,27 +42,19 @@ export async function activate(context: vscode.ExtensionContext) {
             provideCompletionItems(document, position) {
                 const linePrefix = document.lineAt(position).text.slice(0, position.character);
 
-                console.log(`Line prefix: ${linePrefix}`);
-
                 // Trigger completion after 'Label.' prefix
                 if (!linePrefix.toLowerCase().endsWith('label.')) {
-                    console.log(`Not a valid prefix for completion: ${linePrefix}`);
                     return undefined;
                 }
 
                 const completionItems: vscode.CompletionItem[] = [];
 
-                console.log(salesforceLabels);
 
                 for (const labelName in salesforceLabels) {
                     try {
-                        console.log(labelName);
                         const label = salesforceLabels[labelName];
-                        // https://vscode-api.js.org/enums/vscode.CompletionItemKind.html
                         const item = new vscode.CompletionItem(labelName, vscode.CompletionItemKind.Text);
 
-                        console.log(label);
-                        console.log(item);
 
                         // Show label value in detail
                         item.detail = label.value[0];
@@ -64,7 +64,6 @@ export async function activate(context: vscode.ExtensionContext) {
                             item.documentation = new vscode.MarkdownString(label.shortDescription[0]);
                         }
 
-                        console.log(item);
 
                         completionItems.push(item);
                     } catch (error) {
@@ -73,8 +72,6 @@ export async function activate(context: vscode.ExtensionContext) {
                     }
                 }
 
-                console.log('Completion items:');
-                console.log(completionItems);
 
                 return completionItems;
             }
@@ -115,19 +112,55 @@ async function loadLabelsInWorkspace() {
 }
 
 function parseLabelFile(labelFileString: string, filePath: string) {
-    xml2js.parseString(labelFileString, (err, result) => {
+    xml2js.parseString(labelFileString, (err: any, result: { CustomLabels: { labels: any; }; }) => {
         if (err) {
             vscode.window.showErrorMessage(`Failed to parse label file ${filePath}: ${err}`);
             return;
         }
 
         const labels = result.CustomLabels.labels;
+        const labelsCount = labels.length;
 
-        labels.forEach((label: CustomLabel) => {
-            salesforceLabels[label.fullName] = label;
+        const showLoadingLabelsProgressNotification = vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: `Loading ${labelsCount} labels from ${filePath}`,
+            cancellable: false
+        }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
+            const startTime = Date.now();
+
+            // Process all labels
+            for (let i = 0; i < labels.length; i++) {
+                const label = labels[i];
+                salesforceLabels[label.fullName] = label;
+
+                // Update progress bar
+                const percent = Math.round((i + 1) / labelsCount * 100);
+                progress.report({
+                    message: `Loaded label ${label.fullName} (${i + 1}/${labelsCount})`,
+                    increment: 100 / labelsCount
+                });
+
+                // Add a small delay between each label to make progress visible
+                if (i < labels.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 1));
+                }
+            }
+
+            // Ensure the progress bar shows for at least 1 second
+            const elapsedTime = Date.now() - startTime;
+            if (elapsedTime < 250) {
+                await new Promise(resolve => setTimeout(resolve, 250 - elapsedTime));
+            }
         });
 
-        vscode.window.showInformationMessage(`Parsed ${labels.length} labels from your custom labels metadata file.`);
+        showLoadingLabelsProgressNotification.then(() => {
+            vscode.window.showInformationMessage(`Parsed ${labels.length} labels from your custom labels metadata file.`);
+        });
+
+        if (labelsCount === 0) {
+            vscode.window.showInformationMessage(`No labels found in ${filePath}`);
+            return;
+        }
     });
 }
 
