@@ -30,6 +30,7 @@ const RAW_RUNTIME_STATE =
           ["@types/mocha", "npm:10.0.10"],\
           ["@types/node", "npm:20.17.30"],\
           ["@types/vscode", "npm:1.99.1"],\
+          ["@types/xml2js", "npm:0.4.14"],\
           ["@typescript-eslint/eslint-plugin", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:8.29.1"],\
           ["@typescript-eslint/parser", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:8.29.1"],\
           ["@vscode/test-cli", "npm:0.0.10"],\
@@ -37,7 +38,8 @@ const RAW_RUNTIME_STATE =
           ["esbuild", "npm:0.25.2"],\
           ["eslint", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:9.24.0"],\
           ["npm-run-all", "npm:4.1.5"],\
-          ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"]\
+          ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"],\
+          ["xml2js", "npm:0.6.2"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -619,6 +621,14 @@ const RAW_RUNTIME_STATE =
           ["undici-types", "npm:6.19.8"]\
         ],\
         "linkType": "HARD"\
+      }],\
+      ["npm:22.14.1", {\
+        "packageLocation": "../../../.yarn/berry/cache/@types-node-npm-22.14.1-ff7e0a29d7-10c0.zip/node_modules/@types/node/",\
+        "packageDependencies": [\
+          ["@types/node", "npm:22.14.1"],\
+          ["undici-types", "npm:6.21.0"]\
+        ],\
+        "linkType": "HARD"\
       }]\
     ]],\
     ["@types/vscode", [\
@@ -626,6 +636,16 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/@types-vscode-npm-1.99.1-9c2957ea87-10c0.zip/node_modules/@types/vscode/",\
         "packageDependencies": [\
           ["@types/vscode", "npm:1.99.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["@types/xml2js", [\
+      ["npm:0.4.14", {\
+        "packageLocation": "../../../.yarn/berry/cache/@types-xml2js-npm-0.4.14-595cc9c3cf-10c0.zip/node_modules/@types/xml2js/",\
+        "packageDependencies": [\
+          ["@types/xml2js", "npm:0.4.14"],\
+          ["@types/node", "npm:22.14.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3716,7 +3736,7 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/randombytes-npm-2.1.0-e3da76bccf-10c0.zip/node_modules/randombytes/",\
         "packageDependencies": [\
           ["randombytes", "npm:2.1.0"],\
-          ["safe-buffer", "npm:5.2.1"]\
+          ["safe-buffer", "npm:5.1.2"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -3881,13 +3901,6 @@ const RAW_RUNTIME_STATE =
           ["safe-buffer", "npm:5.1.2"]\
         ],\
         "linkType": "HARD"\
-      }],\
-      ["npm:5.2.1", {\
-        "packageLocation": "../../../.yarn/berry/cache/safe-buffer-npm-5.2.1-3481c8aa9b-10c0.zip/node_modules/safe-buffer/",\
-        "packageDependencies": [\
-          ["safe-buffer", "npm:5.2.1"]\
-        ],\
-        "linkType": "HARD"\
       }]\
     ]],\
     ["safe-push-apply", [\
@@ -3918,6 +3931,15 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/safer-buffer-npm-2.1.2-8d5c0b705e-10c0.zip/node_modules/safer-buffer/",\
         "packageDependencies": [\
           ["safer-buffer", "npm:2.1.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["sax", [\
+      ["npm:1.4.1", {\
+        "packageLocation": "../../../.yarn/berry/cache/sax-npm-1.4.1-503b1923cb-10c0.zip/node_modules/sax/",\
+        "packageDependencies": [\
+          ["sax", "npm:1.4.1"]\
         ],\
         "linkType": "HARD"\
       }]\
@@ -4005,6 +4027,7 @@ const RAW_RUNTIME_STATE =
           ["@types/mocha", "npm:10.0.10"],\
           ["@types/node", "npm:20.17.30"],\
           ["@types/vscode", "npm:1.99.1"],\
+          ["@types/xml2js", "npm:0.4.14"],\
           ["@typescript-eslint/eslint-plugin", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:8.29.1"],\
           ["@typescript-eslint/parser", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:8.29.1"],\
           ["@vscode/test-cli", "npm:0.0.10"],\
@@ -4012,7 +4035,8 @@ const RAW_RUNTIME_STATE =
           ["esbuild", "npm:0.25.2"],\
           ["eslint", "virtual:9faabe8f5c4fffc71ed5f20dba70c5ba4ff856bd8a40cf2e976533b76c50418b7e6b42012c5d82c85fbadf31f0c5d1411ac5c22eefe10436e78d92048d43ef8b#npm:9.24.0"],\
           ["npm-run-all", "npm:4.1.5"],\
-          ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"]\
+          ["typescript", "patch:typescript@npm%3A5.8.3#optional!builtin<compat/typescript>::version=5.8.3&hash=8c6c40"],\
+          ["xml2js", "npm:0.6.2"]\
         ],\
         "linkType": "SOFT"\
       }]\
@@ -4570,6 +4594,13 @@ const RAW_RUNTIME_STATE =
           ["undici-types", "npm:6.19.8"]\
         ],\
         "linkType": "HARD"\
+      }],\
+      ["npm:6.21.0", {\
+        "packageLocation": "../../../.yarn/berry/cache/undici-types-npm-6.21.0-eb2b0ed56a-10c0.zip/node_modules/undici-types/",\
+        "packageDependencies": [\
+          ["undici-types", "npm:6.21.0"]\
+        ],\
+        "linkType": "HARD"\
       }]\
     ]],\
     ["unique-filename", [\
@@ -4770,6 +4801,26 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "../../../.yarn/berry/cache/wrappy-npm-1.0.2-916de4d4b3-10c0.zip/node_modules/wrappy/",\
         "packageDependencies": [\
           ["wrappy", "npm:1.0.2"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["xml2js", [\
+      ["npm:0.6.2", {\
+        "packageLocation": "../../../.yarn/berry/cache/xml2js-npm-0.6.2-64cd781d74-10c0.zip/node_modules/xml2js/",\
+        "packageDependencies": [\
+          ["xml2js", "npm:0.6.2"],\
+          ["sax", "npm:1.4.1"],\
+          ["xmlbuilder", "npm:11.0.1"]\
+        ],\
+        "linkType": "HARD"\
+      }]\
+    ]],\
+    ["xmlbuilder", [\
+      ["npm:11.0.1", {\
+        "packageLocation": "../../../.yarn/berry/cache/xmlbuilder-npm-11.0.1-b8b04dc929-10c0.zip/node_modules/xmlbuilder/",\
+        "packageDependencies": [\
+          ["xmlbuilder", "npm:11.0.1"]\
         ],\
         "linkType": "HARD"\
       }]\
