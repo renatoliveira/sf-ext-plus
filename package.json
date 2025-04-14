@@ -21,6 +21,10 @@
       }
     ]
   },
+  "author": {
+    "name": "Renato Oliveira",
+    "email": "renato.oliveira@dogeforce.com"
+  },
   "scripts": {
     "vscode:prepublish": "npm run package",
     "compile": "npm run check-types && lint && node esbuild.js",
