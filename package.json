@@ -17,19 +17,19 @@
     "commands": [
       {
         "command": "sf-ext-plus.forceLoadSalesforceLabels",
-        "title": "Force load custom labels"
+        "title": "Force load of custom labels"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "yarn run package",
-    "compile": "yarn run check-types && yarn run lint && node esbuild.js",
+    "vscode:prepublish": "npm run package",
+    "compile": "npm run check-types && lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "yarn run check-types && yarn run lint && node esbuild.js --production",
+    "package": "npm run check-types && lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+    "pretest": "npm run compile-tests && compile && lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test"
