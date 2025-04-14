@@ -43,7 +43,7 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
                 const linePrefix = document.lineAt(position).text.slice(0, position.character);
 
                 // Trigger completion after 'Label.' prefix
-                if (!linePrefix.toLowerCase().endsWith('label.')) {
+                if (typeof linePrefix !== 'string' || !linePrefix.toLowerCase().endsWith('label.')) {
                     return undefined;
                 }
 
