@@ -1,14 +1,9 @@
 import * as vscode from 'vscode';
 import { activate as activateLabelsAutoComplete } from './commands/labels/main';
+import { activate as activateFieldCommands } from './commands/fields/main';
 
 export function activate(context: vscode.ExtensionContext) {
-	// Register the command for manual invocation if needed
-	const disposable = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', () => {
-		activateLabelsAutoComplete(context, true);
-	});
-
-	context.subscriptions.push(disposable);
-
-	// Run automatically on activation
-	activateLabelsAutoComplete(context);
+    // Run activation of each command
+    activateFieldCommands(context);
+    activateLabelsAutoComplete(context);
 }
