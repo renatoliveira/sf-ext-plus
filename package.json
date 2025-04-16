@@ -7,6 +7,7 @@
     "url": "https://github.com/renatoliveira/sf-ext-plus",
     "type": "git"
   },
+  "publisher": "wisefox",
   "engines": {
     "vscode": "^1.99.0"
   },
@@ -22,6 +23,10 @@
       {
         "command": "sf-ext-plus.forceLoadSalesforceLabels",
         "title": "Force load of custom labels"
+      },
+      {
+        "command": "sf-ext-plus.createField",
+        "title": "Create new field"
       }
     ]
   },
