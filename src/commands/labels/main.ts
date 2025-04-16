@@ -18,9 +18,6 @@ let salesforceLabels: LabelMap = {};
 
 export async function activate(context: vscode.ExtensionContext, forceLoad: Boolean = false) {
 
-    console.log('Activating Salesforce Labels AutoComplete Extension');
-    console.log(`salesforceLabels: ${JSON.stringify(salesforceLabels)}`);
-
     // Check if labels are already loaded
     if (!forceLoad && Object.keys(salesforceLabels).length > 0) {
         vscode.window.showInformationMessage('Salesforce labels are already loaded');
@@ -30,7 +27,6 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
     const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.loadSalesforceLabels', loadLabelsInWorkspace);
 
     context.subscriptions.push(loadLabelsCommand);
-
 
     // Register a completion provider for Apex files (.cls)
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
@@ -49,6 +45,7 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
 
                 const completionItems: vscode.CompletionItem[] = [];
 
+                console.log(document.languageId);
 
                 for (const labelName in salesforceLabels) {
                     try {
@@ -67,7 +64,6 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
 
                         completionItems.push(item);
                     } catch (error) {
-                        console.error(`Error processing label ${labelName}: ${error}`);
                         break;
                     }
                 }
@@ -78,6 +74,45 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
         },
         '.' // Add trigger character to automatically show completions after typing '.'
     );
+
+    // Register a hover provider for showing label information in Apex files
+    const labelHoverProvider = vscode.languages.registerHoverProvider(
+        [
+            { scheme: 'file', language: 'apex' },
+            { scheme: 'file', pattern: '**/*.cls' } // Also match by file extension
+        ],
+        {
+            provideHover(document, position) {
+                const wordRange = document.getWordRangeAtPosition(position, /Label\.(\w+)/);
+
+                if (!wordRange) {
+                    return undefined;
+                }
+
+                const labelName = document.getText(wordRange).slice(6); // Remove 'Label.' prefix
+                const label = salesforceLabels[labelName];
+
+                if (label) {
+                    const hoverContent = new vscode.MarkdownString();
+
+                    hoverContent.appendMarkdown(`**Label Name:** ${labelName}\n\n`);
+                    hoverContent.appendMarkdown(`**Value:** ${label.value}\n\n`);
+
+                    if (label.categories) {
+                        hoverContent.appendMarkdown(`**Category:** ${label.categories}\n\n`);
+                    }
+
+                    hoverContent.isTrusted = true;
+
+                    return new vscode.Hover(hoverContent, wordRange);
+                }
+
+                return undefined;
+            }
+        }
+    );
+
+    context.subscriptions.push(labelHoverProvider);
 
     context.subscriptions.push(labelCompletionProvider);
 

@@ -30,6 +30,7 @@
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "watch:esbuild": "node esbuild.js --watch",
     "package": "npm run check-types && npm run lint && node esbuild.js --production",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
