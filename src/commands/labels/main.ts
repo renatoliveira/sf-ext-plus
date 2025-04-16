@@ -32,7 +32,7 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
         [
             { scheme: 'file', language: 'apex' },
-            { scheme: 'file', pattern: '**/*.cls' } // Also match by file extension
+            { scheme: 'file', pattern: '**/*.cls' }
         ],
         {
             provideCompletionItems(document, position) {
@@ -45,13 +45,10 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
 
                 const completionItems: vscode.CompletionItem[] = [];
 
-                console.log(document.languageId);
-
                 for (const labelName in salesforceLabels) {
                     try {
                         const label = salesforceLabels[labelName];
-                        const item = new vscode.CompletionItem(labelName, vscode.CompletionItemKind.Text);
-
+                        const item = new vscode.CompletionItem(labelName, vscode.CompletionItemKind.Variable);
 
                         // Show label value in detail
                         item.detail = label.value[0];
@@ -60,7 +57,6 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
                         if (label.shortDescription && label.shortDescription[0]) {
                             item.documentation = new vscode.MarkdownString(label.shortDescription[0]);
                         }
-
 
                         completionItems.push(item);
                     } catch (error) {
@@ -79,41 +75,53 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
     const labelHoverProvider = vscode.languages.registerHoverProvider(
         [
             { scheme: 'file', language: 'apex' },
-            { scheme: 'file', pattern: '**/*.cls' } // Also match by file extension
+            { scheme: 'file', pattern: '**/*.cls' }
         ],
         {
             provideHover(document, position) {
-                const wordRange = document.getWordRangeAtPosition(position, /Label\.(\w+)/);
+                const wordRange = document.getWordRangeAtPosition(position, /(?:label|system\.label)\.(\w+)/gi);
 
                 if (!wordRange) {
                     return undefined;
                 }
 
-                const labelName = document.getText(wordRange).slice(6); // Remove 'Label.' prefix
+                const text = document.getText(wordRange);
+                const labelName = text.replaceAll(/(?:label|system\.label)\./gi, '');
                 const label = salesforceLabels[labelName];
 
-                if (label) {
-                    const hoverContent = new vscode.MarkdownString();
-
-                    hoverContent.appendMarkdown(`**Label Name:** ${labelName}\n\n`);
-                    hoverContent.appendMarkdown(`**Value:** ${label.value}\n\n`);
-
-                    if (label.categories) {
-                        hoverContent.appendMarkdown(`**Category:** ${label.categories}\n\n`);
-                    }
-
-                    hoverContent.isTrusted = true;
-
-                    return new vscode.Hover(hoverContent, wordRange);
+                if (!label) {
+                    return undefined;
                 }
 
-                return undefined;
+                const hoverContent = new vscode.MarkdownString();
+
+                hoverContent.appendMarkdown(`**Label Name:** ${labelName}\n\n`);
+                hoverContent.appendMarkdown(`**Value:** ${label.value}\n\n`);
+
+                if (label.categories) {
+                    hoverContent.appendMarkdown(`**Category:** ${label.categories}\n\n`);
+                }
+
+                if (label.shortDescription) {
+                    hoverContent.appendMarkdown(`**Short Description:** ${label.shortDescription || 'N/A'}\n\n`);
+                }
+
+                if (label.protected) {
+                    hoverContent.appendMarkdown(`**Protected:** ${label.protected ? 'Yes' : 'No'}\n\n`);
+                }
+
+                if (label.language) {
+                    hoverContent.appendMarkdown(`**Language:** ${label.language || 'N/A'}\n\n`);
+                }
+
+                hoverContent.isTrusted = true;
+
+                return new vscode.Hover(hoverContent, wordRange);
             }
         }
     );
 
     context.subscriptions.push(labelHoverProvider);
-
     context.subscriptions.push(labelCompletionProvider);
 
     // Load labels automatically when extension activates
