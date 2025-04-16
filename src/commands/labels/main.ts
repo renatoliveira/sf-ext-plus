@@ -24,9 +24,7 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
         return;
     }
 
-    const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.loadSalesforceLabels', loadLabelsInWorkspace);
-
-    context.subscriptions.push(loadLabelsCommand);
+    const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', loadLabelsInWorkspace);
 
     // Register a completion provider for Apex files (.cls)
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
@@ -120,6 +118,8 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
             }
         }
     );
+
+    context.subscriptions.push(loadLabelsCommand);
 
     context.subscriptions.push(labelHoverProvider);
     context.subscriptions.push(labelCompletionProvider);
