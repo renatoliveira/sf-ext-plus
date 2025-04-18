@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
-import salesforceLabels from './load';
+import { salesforceLabels } from './load';
 
 export async function getProvider() {
     // Register a hover provider for showing label information in Apex files
     const labelHoverProvider = vscode.languages.registerHoverProvider(
         [
-            { scheme: 'file', language: 'apex' },
-            { scheme: 'file', pattern: '**/*.cls' }
+            { scheme: 'file', pattern: '**/*.cls' },
+            { scheme: 'file', language: 'apex' }
         ],
         {
             provideHover(document, position) {
