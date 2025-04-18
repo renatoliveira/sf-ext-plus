@@ -15,21 +15,28 @@ interface LabelMap {
 }
 
 let salesforceLabels: LabelMap = {};
+let labelCompletionProviderDisposable: vscode.Disposable | undefined;
+let labelHoverProviderDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext, forceLoad: Boolean = false) {
-
     // Check if labels are already loaded
     if (!forceLoad && Object.keys(salesforceLabels).length > 0) {
-        vscode.window.showInformationMessage('Salesforce labels are already loaded');
+        vscode.window.showInformationMessage('Salesforce labels are already loaded.');
         return;
     }
 
-    const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.loadSalesforceLabels', loadLabelsInWorkspace);
-
-    context.subscriptions.push(loadLabelsCommand);
+    if (forceLoad) {
+        // Dispose of previous providers if they exist
+        if (labelCompletionProviderDisposable) {
+            labelCompletionProviderDisposable.dispose();
+        }
+        if (labelHoverProviderDisposable) {
+            labelHoverProviderDisposable.dispose();
+        }
+    }
 
     // Register a completion provider for Apex files (.cls)
-    const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
+    labelCompletionProviderDisposable = vscode.languages.registerCompletionItemProvider(
         [
             { scheme: 'file', language: 'apex' },
             { scheme: 'file', pattern: '**/*.cls' }
@@ -72,7 +79,7 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
     );
 
     // Register a hover provider for showing label information in Apex files
-    const labelHoverProvider = vscode.languages.registerHoverProvider(
+    labelHoverProviderDisposable = vscode.languages.registerHoverProvider(
         [
             { scheme: 'file', language: 'apex' },
             { scheme: 'file', pattern: '**/*.cls' }
@@ -121,8 +128,11 @@ export async function activate(context: vscode.ExtensionContext, forceLoad: Bool
         }
     );
 
-    context.subscriptions.push(labelHoverProvider);
-    context.subscriptions.push(labelCompletionProvider);
+    // avoid duplicating the providers on force load
+    if (!forceLoad) {
+        context.subscriptions.push(labelHoverProviderDisposable);
+        context.subscriptions.push(labelCompletionProviderDisposable);
+    }
 
     // Load labels automatically when extension activates
     await loadLabelsInWorkspace();
@@ -170,6 +180,9 @@ function parseLabelFile(labelFileString: string, filePath: string) {
             cancellable: false
         }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
             const startTime = Date.now();
+
+            // Reset labels before loading new ones
+            salesforceLabels = {};
 
             // Process all labels
             for (let i = 0; i < labels.length; i++) {
