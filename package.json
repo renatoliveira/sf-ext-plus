@@ -2,7 +2,7 @@
   "name": "sf-ext-plus",
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
     "type": "git"
