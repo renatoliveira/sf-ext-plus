@@ -3,7 +3,7 @@
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
   "icon": "images/icon.png",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
     "type": "git"
@@ -24,10 +24,6 @@
       {
         "command": "sf-ext-plus.forceLoadSalesforceLabels",
         "title": "Force load of custom labels"
-      },
-      {
-        "command": "sf-ext-plus.createField",
-        "title": "Create new field"
       }
     ]
   },
