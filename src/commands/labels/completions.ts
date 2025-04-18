@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
-import salesforceLabels from './load';
+import { salesforceLabels } from './load';
 
 export async function getProvider() {
     // Register a completion provider for Apex files (.cls)
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
         [
-            { scheme: 'file', language: 'apex' },
-            { scheme: 'file', pattern: '**/*.cls' }
+            { scheme: 'file', pattern: '**/*.cls' },
+            { scheme: 'file', language: 'apex' }
         ],
         {
             provideCompletionItems(document, position) {
@@ -34,15 +34,15 @@ export async function getProvider() {
 
                         completionItems.push(item);
                     } catch (error) {
+                        console.error(`Error processing label ${labelName}:`, error);
                         break;
                     }
                 }
 
-
                 return completionItems;
             }
         },
-        '.' // Add trigger character to automatically show completions after typing '.'
+        '.' // Add the trigger character to automatically show completions after typing '.'
     );
 
     return labelCompletionProvider;

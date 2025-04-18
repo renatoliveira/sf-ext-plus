@@ -4,23 +4,23 @@ import { getProvider as getCompletionProvider } from './completions';
 import { getProvider as getHoverProvider } from './hover';
 
 interface CustomLabel {
-    fullName: string;
-    value: string;
-    categories?: string;
-    language?: string;
-    protected?: boolean;
-    shortDescription?: string;
+    fullName: String;
+    value: String;
+    categories?: String;
+    language?: String;
+    protected?: Boolean;
+    shortDescription?: String;
 }
 
 interface LabelMap {
     [fullName: string]: CustomLabel;
 }
 
-let salesforceLabels: LabelMap = {};
+export let salesforceLabels: LabelMap = {};
+export let activeLabelCategories: String[] = [];
+
 let labelCompletionProviderDisposable: vscode.Disposable | undefined;
 let labelHoverProviderDisposable: vscode.Disposable | undefined;
-
-export default salesforceLabels;
 
 export async function activate(context: vscode.ExtensionContext) {
     // register the command to load labels through the command palette
@@ -94,11 +94,18 @@ function parseLabelFile(labelFileString: string, filePath: string) {
             cancellable: false
         }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
             const startTime = Date.now();
+            const categories: string[] = [];
 
             // Process all labels
             for (let i = 0; i < labels.length; i++) {
                 const label = labels[i];
                 salesforceLabels[label.fullName] = label;
+
+                if (label.categories) {
+                    const cats = label.categories[0].split(',').map((category: string) => category.trim());
+
+                    categories.push(...cats);
+                }
 
                 // Update progress bar
                 const percent = Math.round((i + 1) / labelsCount * 100);
@@ -112,6 +119,8 @@ function parseLabelFile(labelFileString: string, filePath: string) {
                     await new Promise(resolve => setTimeout(resolve, 1));
                 }
             }
+
+            activeLabelCategories = Array.from(new Set(categories));
 
             // Ensure the progress bar shows for at least 1 second
             const elapsedTime = Date.now() - startTime;
@@ -135,4 +144,5 @@ function parseLabelFile(labelFileString: string, filePath: string) {
 export function deactivate() {
     // Clean up if needed
     salesforceLabels = {};
+    activeLabelCategories = [];
 }
