@@ -1,3 +1,5 @@
+![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/wisefox.sf-ext-plus?link=https%3A%2F%2Fmarketplace.visualstudio.com%2Fitems%3FitemName%3Dwisefox.sf-ext-plus) ![Visual Studio Marketplace Release Date](https://img.shields.io/visual-studio-marketplace/release-date/wisefox.sf-ext-plus?link=https%3A%2F%2Fmarketplace.visualstudio.com%2Fitems%3FitemName%3Dwisefox.sf-ext-plus) ![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/stars/wisefox.sf-ext-plus?link=https%3A%2F%2Fmarketplace.visualstudio.com%2Fitems%3FitemName%3Dwisefox.sf-ext-plus)
+
 # Salesforce Extension Plus
 
 The extension provides some tools to enhance the Salesforce development experience in Visual Studio Code. It is a collection of useful features that can help developers work more efficiently with Salesforce projects and that are not included in the official Salesforce Extension pack.
