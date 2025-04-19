@@ -16,6 +16,13 @@ This feature is useful for developers who want to quickly access and use custom 
 
 When you hover over a custom label in your Apex code, you'll see a tooltip that provides information about the label, including its name and value. This feature is useful for developers who want to quickly reference the details of a custom label without having to navigate to the custom label metadata file.
 
+### Create custom labels from the command palette
+
+You can create custom labels directly from the command palette. This feature allows you to quickly add new custom labels to your project without having to manually edit the metadata file or use the UI in Salesforce.
+
+The command to create a custom label is `Salesforce Ext. Plus: Create Custom Label`. When you run this command, you'll be prompted to enter the label name and value. The extension will then create a new custom label metadata file with the specified name and value.
+
+
 ## Planned features
 
 - Support for custom labels in Lightning Web Components (LWC) and Visualforce.
