@@ -3,6 +3,7 @@
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
   "version": "0.2.0",
+  "icon": "images/icon.png",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
     "type": "git"
@@ -37,6 +38,7 @@
   "scripts": {
     "vscode:prepublish": "npm run package",
     "vscode:package": "npm run package && vsce package",
+    "vscode:publish": "npm run package && vsce publish",
     "compile": "npm run check-types && npm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
