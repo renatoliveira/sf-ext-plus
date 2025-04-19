@@ -3,7 +3,7 @@ import * as xml2js from 'xml2js';
 import { getProvider as getCompletionProvider } from './completions';
 import { getProvider as getHoverProvider } from './hover';
 
-interface CustomLabel {
+export interface CustomLabel {
     fullName: String;
     value: String;
     categories?: String;
@@ -18,15 +18,19 @@ interface LabelMap {
 
 export let salesforceLabels: LabelMap = {};
 export let activeLabelCategories: String[] = [];
+export let labelFiles = [] as vscode.Uri[];
 
 let labelCompletionProviderDisposable: vscode.Disposable | undefined;
 let labelHoverProviderDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
-    // register the command to load labels through the command palette
-    const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', loadLabelsInWorkspace);
+    const commands = await vscode.commands.getCommands(true);
 
-    context.subscriptions.push(loadLabelsCommand);
+    if (!commands.includes('sf-ext-plus.forceLoadSalesforceLabels')) {
+        // register the command to load labels through the command palette
+        const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', loadLabelsInWorkspace);
+        context.subscriptions.push(loadLabelsCommand);
+    }
 
     // Load labels automatically when extension activates
     await loadLabelsInWorkspace();
@@ -57,7 +61,7 @@ async function loadLabelsInWorkspace() {
         return;
     }
 
-    const labelFiles = await vscode.workspace.findFiles('**/force-app/**/labels/*.labels-meta.xml');
+    labelFiles = await vscode.workspace.findFiles('**/force-app/**/labels/*.labels-meta.xml');
 
     if (labelFiles.length === 0) {
         vscode.window.showInformationMessage('No label files found');
