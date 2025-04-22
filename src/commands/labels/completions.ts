@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { salesforceLabels } from './load';
 
-export async function getProvider() {
+export async function getCompletionProvider() {
     // Register a completion provider for Apex files (.cls)
     const labelCompletionProvider = vscode.languages.registerCompletionItemProvider(
         [
