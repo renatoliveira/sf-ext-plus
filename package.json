@@ -2,7 +2,7 @@
   "name": "sf-ext-plus",
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "icon": "images/icon.png",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
@@ -23,11 +23,16 @@
     "commands": [
       {
         "command": "sf-ext-plus.forceLoadSalesforceLabels",
-        "title": "Salesforce Ext. Plus: Force load of custom labels"
+        "title": "Salesforce Ext.+: Force load of custom labels"
       },
       {
         "command": "sf-ext-plus.createNewLabel",
-        "title": "Salesforce Ext. Plus: Create Custom Label"
+        "title": "Salesforce Ext.+: Create Custom Label"
+      },
+      {
+        "command": "sf-ext-plus.useExistingLabel",
+        "title": "Salesforce Ext.+: Use an existing label",
+        "enablement": "editorHasSelection"
       }
     ]
   },

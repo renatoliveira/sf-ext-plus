@@ -26,6 +26,10 @@ You can create custom labels directly from the command palette. This feature all
 
 The command to create a custom label is `Salesforce Ext. Plus: Create Custom Label`. When you run this command, you'll be prompted to enter the label name and value. The extension will then create a new custom label metadata file with the specified name and value.
 
+#### Quickly create custom labels from the Code Action menu
+
+Whenever you have a string selected in Apex, once you get code suggestions with `Ctrl + .` (or `Cmd + .` on Mac), you'll see a new option called "Create Custom Label". This feature allows you to quickly create a custom label from a selected string in your Apex code. When you select this option, the extension will prompt you to enter the label name and value, and it will create a new custom label entry on the metadata file with the specified name and value.
+
 #### JSON Settings
 
 The extension reads the `package.json` file at the root of your SFDX project. There you may add some settings to customize the behavior of the extension. For example:

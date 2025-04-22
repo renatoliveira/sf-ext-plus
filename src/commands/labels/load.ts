@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as xml2js from 'xml2js';
-import { getProvider as getCompletionProvider } from './completions';
 import { getProvider as getHoverProvider } from './hover';
+import { getCompletionProvider } from './completions';
+import labels from '../../labels';
 
-export interface CustomLabel {
+export default interface CustomLabel {
     fullName: String;
     value: String;
     categories?: String;
@@ -22,13 +23,14 @@ export let labelFiles = [] as vscode.Uri[];
 
 let labelCompletionProviderDisposable: vscode.Disposable | undefined;
 let labelHoverProviderDisposable: vscode.Disposable | undefined;
+let labelCreationFromMenuContextDisposable: vscode.Disposable | undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
     const commands = await vscode.commands.getCommands(true);
 
-    if (!commands.includes('sf-ext-plus.forceLoadSalesforceLabels')) {
+    if (!commands.includes(`${labels.misc.EXTENSION_NAME}.forceLoadSalesforceLabels`)) {
         // register the command to load labels through the command palette
-        const loadLabelsCommand = vscode.commands.registerCommand('sf-ext-plus.forceLoadSalesforceLabels', loadLabelsInWorkspace);
+        const loadLabelsCommand = vscode.commands.registerCommand(`${labels.misc.EXTENSION_NAME}.forceLoadSalesforceLabels`, loadLabelsInWorkspace);
         context.subscriptions.push(loadLabelsCommand);
     }
 
@@ -48,15 +50,20 @@ export async function activate(context: vscode.ExtensionContext) {
     labelHoverProviderDisposable = await getHoverProvider();
 
     // Register completion and hover providers
-    context.subscriptions.push(labelCompletionProviderDisposable);
-    context.subscriptions.push(labelHoverProviderDisposable);
+    if (labelCompletionProviderDisposable) {
+        context.subscriptions.push(labelCompletionProviderDisposable);
+    }
+
+    if (labelHoverProviderDisposable) {
+        context.subscriptions.push(labelHoverProviderDisposable);
+    }
 }
 
 async function loadLabelsInWorkspace() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
 
     if (!workspaceFolders) {
-        vscode.window.showWarningMessage('No workspace folder is opened');
+        vscode.window.showWarningMessage(labels.warningMessages.NO_WORKSPACE_IS_OPENED);
 
         return;
     }
@@ -64,7 +71,7 @@ async function loadLabelsInWorkspace() {
     labelFiles = await vscode.workspace.findFiles('**/force-app/**/labels/*.labels-meta.xml');
 
     if (labelFiles.length === 0) {
-        vscode.window.showInformationMessage('No label files found');
+        vscode.window.showInformationMessage(labels.informationMessages.NO_LABEL_FILES_FOUND);
 
         return;
     }
@@ -76,7 +83,7 @@ async function loadLabelsInWorkspace() {
 
             parseLabelFile(labelFileString, labelFileUri.fsPath);
         } catch (err) {
-            vscode.window.showWarningMessage(`Failed to load labels from ${labelFileUri.fsPath}: ${err}`);
+            vscode.window.showWarningMessage(labels.warningMessages.FAILED_TO_LOAD_LABELS_AT_PATH(labelFileUri.fsPath, err as Error));
         }
     }
 }
@@ -84,25 +91,25 @@ async function loadLabelsInWorkspace() {
 function parseLabelFile(labelFileString: string, filePath: string) {
     xml2js.parseString(labelFileString, (err: any, result: { CustomLabels: { labels: any; }; }) => {
         if (err) {
-            vscode.window.showErrorMessage(`Failed to parse label file ${filePath}: ${err}`);
+            vscode.window.showErrorMessage(labels.warningMessages.FAILED_TO_PARSE_FILE_AT_PATH(filePath, err));
 
             return;
         }
 
-        const labels = result.CustomLabels.labels;
-        const labelsCount = labels.length;
+        const customLabels = result.CustomLabels.labels;
+        const labelsCount = customLabels.length;
 
         const showLoadingLabelsProgressNotification = vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
-            title: `Loading ${labelsCount} labels from ${filePath}`,
+            title: labels.informationMessages.LOADING_LABELS_FROM_PATH(labelsCount, filePath),
             cancellable: false
         }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
             const startTime = Date.now();
             const categories: string[] = [];
 
             // Process all labels
-            for (let i = 0; i < labels.length; i++) {
-                const label = labels[i];
+            for (let i = 0; i < customLabels.length; i++) {
+                const label = customLabels[i];
                 salesforceLabels[label.fullName] = label;
 
                 if (label.categories) {
@@ -119,7 +126,7 @@ function parseLabelFile(labelFileString: string, filePath: string) {
                 });
 
                 // Add a small delay between each label to make progress visible
-                if (i < labels.length - 1) {
+                if (i < customLabels.length - 1) {
                     await new Promise(resolve => setTimeout(resolve, 1));
                 }
             }
@@ -134,11 +141,11 @@ function parseLabelFile(labelFileString: string, filePath: string) {
         });
 
         showLoadingLabelsProgressNotification.then(() => {
-            vscode.window.showInformationMessage(`Parsed ${labels.length} labels from your custom labels metadata file.`);
+            vscode.window.showInformationMessage(labels.informationMessages.PARSED_LABELS_FROM_FILE(labelsCount));
         });
 
         if (labelsCount === 0) {
-            vscode.window.showInformationMessage(`No labels found in ${filePath}`);
+            vscode.window.showInformationMessage(labels.informationMessages.NO_LABELS_IN_FILE(filePath));
 
             return;
         }
