@@ -11,7 +11,7 @@ export default interface CustomLabel {
     language?: String;
     protected?: Boolean;
     shortDescription?: String;
-}
+};
 
 interface LabelMap {
     [fullName: string]: CustomLabel;
@@ -23,9 +23,8 @@ export let labelFiles = [] as vscode.Uri[];
 
 let labelCompletionProviderDisposable: vscode.Disposable | undefined;
 let labelHoverProviderDisposable: vscode.Disposable | undefined;
-let labelCreationFromMenuContextDisposable: vscode.Disposable | undefined;
 
-export async function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext, shouldLoadLabels: boolean = true) {
     const commands = await vscode.commands.getCommands(true);
 
     if (!commands.includes(`${labels.misc.EXTENSION_NAME}.forceLoadSalesforceLabels`)) {
@@ -34,8 +33,10 @@ export async function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(loadLabelsCommand);
     }
 
-    // Load labels automatically when extension activates
-    await loadLabelsInWorkspace();
+    if (shouldLoadLabels) {
+        // Load labels from the XML file automatically when extension activates
+        await loadLabelsInWorkspace();
+    }
 
     // dispose of the previous providers if they exist
     if (labelCompletionProviderDisposable) {
