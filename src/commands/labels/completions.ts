@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { salesforceLabels } from './load';
+import { getSalesforceLabelsStore } from './load';
 
 export async function getCompletionProvider() {
     // Register a completion provider for Apex files (.cls)
@@ -19,9 +19,9 @@ export async function getCompletionProvider() {
 
                 const completionItems: vscode.CompletionItem[] = [];
 
-                for (const labelName in salesforceLabels) {
+                for (const labelName in getSalesforceLabelsStore().salesforceLabels) {
                     try {
-                        const label = salesforceLabels[labelName];
+                        const label = getSalesforceLabelsStore().salesforceLabels[labelName];
                         const item = new vscode.CompletionItem(labelName, vscode.CompletionItemKind.Variable);
 
                         // Show label value in detail
