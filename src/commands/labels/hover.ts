@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { salesforceLabels } from './load';
+import { getSalesforceLabelsStore } from './load';
 
 export async function getProvider() {
     // Register a hover provider for showing label information in Apex files
@@ -18,7 +18,7 @@ export async function getProvider() {
 
                 const text = document.getText(wordRange);
                 const labelName = text.replaceAll(/(?:label|system\.label)\./gi, '');
-                const label = salesforceLabels[labelName];
+                const label = getSalesforceLabelsStore().salesforceLabels[labelName];
 
                 if (!label) {
                     return undefined;
