@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
-import CustomLabel, { activeLabelCategories, labelFiles, salesforceLabels } from './load';
+import CustomLabel, { activate, activeLabelCategories, labelFiles, getSalesforceLabelsStore } from './load';
 import labels from '../../labels';
 
 export async function activateLabelCreateOnPalette(context: vscode.ExtensionContext) {
     // enables the input box to create a new label
     const createLabelCommand = vscode.commands.registerCommand(`${labels.misc.EXTENSION_NAME}.createNewLabel`, async (providedLabelValue?: string) => {
         // Use the provided label name if available, otherwise prompt for one
+        let labelValue;
         let labelName = await vscode.window.showInputBox({
             prompt: labels.commands.PROMPT_NAME,
             placeHolder: labels.commands.PLACEHOLDER
@@ -17,7 +18,7 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
 
         // get the text selected in the editor
         if (providedLabelValue) {
-            labelName = providedLabelValue;
+            labelValue = providedLabelValue;
         }
 
         // ask if user wants to use a defined namespace in package.json's "salesforce.namespace" field
@@ -38,15 +39,17 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
             }
         }
 
-        const labelValue = await vscode.window.showInputBox({
+        const inputLabelValue = await vscode.window.showInputBox({
             prompt: labels.commands.ENTER_LABEL_VALUE,
             placeHolder: providedLabelValue || labels.commands.CUSTOM_LABEL_VALUE_PLACEHOLDER,
             value: providedLabelValue || labels.misc.EMPTY_STRING
         });
 
-        if (!labelValue) {
+        if (!inputLabelValue) {
             return;
         }
+
+        labelValue = inputLabelValue;
 
         // for the categories, load from activeLabelCategories
         let selectedCategories = await vscode.window.showQuickPick(
@@ -108,7 +111,7 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
             categories: categories,
             language: chosenLanguage,
             protected: isProtected === labels.misc.YES,
-            shortDescription: shortDescription || labelValue
+            shortDescription: shortDescription || labelName
         };
 
         // Get the existing custom label file
@@ -153,7 +156,7 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
         const labelFileString = new TextDecoder('utf-8').decode(labelFileContent);
         const labelFileStringWithNewLabel = labelFileString.replace(
             /<\/labels>/,
-            `</labels>\n    <labels>\n        <fullName>${newLabel.fullName}</fullName>\n        <categories>${newLabel.categories}</categories>\n        <language>${newLabel.language}</language>\n        <protected>${newLabel.protected}</protected>\n        <shortDescription>${newLabel.fullName}</shortDescription>\n        <value>${newLabel.value}</value>\n    </labels>`
+            `</labels>\n    <labels>\n        <fullName>${newLabel.fullName}</fullName>\n        <categories>${newLabel.categories}</categories>\n        <language>${newLabel.language}</language>\n        <protected>${newLabel.protected}</protected>\n        <shortDescription>${newLabel.shortDescription}</shortDescription>\n        <value>${newLabel.value}</value>\n    </labels>`
         );
 
         // Write the updated content back to the label file
@@ -161,13 +164,27 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
         vscode.window.showInformationMessage(labels.commands.LABEL_CREATED_WITH_PATH(newLabel.fullName.toString(), labelFileUri.fsPath));
 
         // Refresh the label files
-        salesforceLabels[newLabel.fullName.toString()] = newLabel;
+        getSalesforceLabelsStore().updateLabel(newLabel.fullName.toString(), newLabel);
+
+        // if the context contains selected text, replace it with the new label
+        const editor = vscode.window.activeTextEditor;
+
+        if (editor) {
+            const range = editor.selection;
+
+            editor.edit(editBuilder => {
+                editBuilder.replace(range, `System.Label.${newLabel.fullName.toString()}`);
+            });
+        }
+
+        // reload the labels for all providers
+        await activate(context, true);
     });
 
     context.subscriptions.push(createLabelCommand);
 }
 
-export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionContext) {
+export async function getLabelCreateOnCodeActionProvider() {
     const labelContextMenuProvider = vscode.languages.registerCodeActionsProvider(
         [
             { scheme: 'file', pattern: '**/*.cls' },
@@ -190,16 +207,16 @@ export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionC
                 }
 
                 // Check if the label name exists in the list of labels
-                if (salesforceLabels[proposedLabelValue]) {
+                if (getSalesforceLabelsStore().salesforceLabels[proposedLabelValue]) {
                     // if it does, do nothing
                     return;
                 }
 
                 // check if the content exists as the value of a label already
-                const existingLabel = Object.values(salesforceLabels).find(label => label.value[0] === proposedLabelValue);
+                const existingLabel = Object.values(getSalesforceLabelsStore().salesforceLabels).find(label => label.value[0] === proposedLabelValue);
 
                 // check if its text shows on some other label in part too
-                const similarLabels = Object.values(salesforceLabels).filter(label =>
+                const similarLabels = Object.values(getSalesforceLabelsStore().salesforceLabels).filter(label =>
                     label.value[0].includes(proposedLabelValue) && (!!existingLabel ? label.value[0] !== existingLabel.value[0] : true)
                 );
 
@@ -310,5 +327,5 @@ export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionC
             }
         });
 
-    context.subscriptions.push(labelContextMenuProvider);
+    return labelContextMenuProvider;
 }
