@@ -191,7 +191,7 @@ export async function getLabelCreateOnCodeActionProvider() {
             { scheme: 'file', language: 'apex' }
         ],
         {
-            provideCodeActions(document, range, context) {
+            provideCodeActions(document, range, _context) {
                 const result: vscode.CodeAction[] = [];
 
                 let proposedLabelValue = document.getText(range);
