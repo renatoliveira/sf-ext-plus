@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import CustomLabel, { activate, activeLabelCategories, labelFiles, salesforceLabels } from './load';
+import CustomLabel, { activate, activeLabelCategories, labelFiles, getSalesforceLabelsStore } from './load';
 import labels from '../../labels';
 
 export async function activateLabelCreateOnPalette(context: vscode.ExtensionContext) {
@@ -164,7 +164,7 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
         vscode.window.showInformationMessage(labels.commands.LABEL_CREATED_WITH_PATH(newLabel.fullName.toString(), labelFileUri.fsPath));
 
         // Refresh the label files
-        salesforceLabels[newLabel.fullName.toString()] = newLabel;
+        getSalesforceLabelsStore().updateLabel(newLabel.fullName.toString(), newLabel);
 
         // if the context contains selected text, replace it with the new label
         const editor = vscode.window.activeTextEditor;
@@ -177,21 +177,21 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
             });
         }
 
-        // reload the label providers without reading from the XML again
-        activate(context, false);
+        // reload the labels for all providers
+        await activate(context, true);
     });
 
     context.subscriptions.push(createLabelCommand);
 }
 
-export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionContext) {
+export async function getLabelCreateOnCodeActionProvider() {
     const labelContextMenuProvider = vscode.languages.registerCodeActionsProvider(
         [
             { scheme: 'file', pattern: '**/*.cls' },
             { scheme: 'file', language: 'apex' }
         ],
         {
-            provideCodeActions(document, range, _context) {
+            provideCodeActions(document, range, context) {
                 const result: vscode.CodeAction[] = [];
 
                 let proposedLabelValue = document.getText(range);
@@ -207,16 +207,16 @@ export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionC
                 }
 
                 // Check if the label name exists in the list of labels
-                if (salesforceLabels[proposedLabelValue]) {
+                if (getSalesforceLabelsStore().salesforceLabels[proposedLabelValue]) {
                     // if it does, do nothing
                     return;
                 }
 
                 // check if the content exists as the value of a label already
-                const existingLabel = Object.values(salesforceLabels).find(label => label.value[0] === proposedLabelValue);
+                const existingLabel = Object.values(getSalesforceLabelsStore().salesforceLabels).find(label => label.value[0] === proposedLabelValue);
 
                 // check if its text shows on some other label in part too
-                const similarLabels = Object.values(salesforceLabels).filter(label =>
+                const similarLabels = Object.values(getSalesforceLabelsStore().salesforceLabels).filter(label =>
                     label.value[0].includes(proposedLabelValue) && (!!existingLabel ? label.value[0] !== existingLabel.value[0] : true)
                 );
 
@@ -327,5 +327,5 @@ export async function activateLabelCreateOnCodeAction(context: vscode.ExtensionC
             }
         });
 
-    context.subscriptions.push(labelContextMenuProvider);
+    return labelContextMenuProvider;
 }
