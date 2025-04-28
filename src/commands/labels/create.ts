@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import CustomLabel, { activate, activeLabelCategories, labelFiles, getSalesforceLabelsStore } from './load';
+import CustomLabel, { activate, labelFiles, getSalesforceLabelsStore } from './load';
 import labels from '../../labels';
 
 export async function activateLabelCreateOnPalette(context: vscode.ExtensionContext) {
@@ -50,6 +50,19 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
         }
 
         labelValue = inputLabelValue;
+
+        let activeLabelCategories: string[] = getSalesforceLabelsStore().getAllLabels().map(label => {
+            if (label.categories && label.categories.length > 0 && label.categories[0] && label.categories[0].length > 0) {
+                const categories = label.categories[0].split(',');
+
+                return categories.map(category => category.trim());
+            }
+
+            return [];
+        }).flat();
+
+        // remove duplicate labels
+        activeLabelCategories = [...new Set(activeLabelCategories.flat())];
 
         // for the categories, load from activeLabelCategories
         let selectedCategories = await vscode.window.showQuickPick(

@@ -37,6 +37,10 @@ class SalesforceLabelsStore {
         this.salesforceLabels[fullName] = label;
     }
 
+    public getAllLabels(): CustomLabel[] {
+        return Object.values(this.salesforceLabels);
+    }
+
     public clear() {
         this.salesforceLabels = {};
     }
