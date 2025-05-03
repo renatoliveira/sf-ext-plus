@@ -4,6 +4,7 @@ import { getProvider as getHoverProvider } from './hover';
 import { getCompletionProvider } from './completions';
 import labels from '../../labels';
 import { getLabelCreateOnCodeActionProvider } from './create';
+import { checkIfWorkspaceIsValidSfdxProject } from '../shared/utilities';
 
 export default interface CustomLabel {
     fullName: String;
@@ -121,6 +122,14 @@ async function loadLabelsInWorkspace(silent: boolean = false) {
             vscode.window.showWarningMessage(labels.warningMessages.NO_WORKSPACE_IS_OPENED);
         }
 
+        return;
+    }
+
+    // checks if the workspace is a valid sfdx project, otherwise no labels to load
+
+    const isSfdxProject = await checkIfWorkspaceIsValidSfdxProject();
+
+    if (!isSfdxProject) {
         return;
     }
 
