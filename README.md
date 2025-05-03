@@ -30,6 +30,16 @@ The command to create a custom label is `Salesforce Ext. Plus: Create Custom Lab
 
 Whenever you have a string selected in Apex, once you get code suggestions with `Ctrl + .` (or `Cmd + .` on Mac), you'll see a new option called "Create Custom Label". This feature allows you to quickly create a custom label from a selected string in your Apex code. When you select this option, the extension will prompt you to enter the label name and value, and it will create a new custom label entry on the metadata file with the specified name and value.
 
+### Permission Sets
+
+#### Quickly assign permission sets to your running user without having to use the Salesforce CLI
+
+Sometimes, when working with scratch orgs specifically, you might not want to assign all permission sets your team is dealing with at once. This is especially true when you are working with a scratch org and you want to test a specific feature or functionality. The extension provides a command that allows you to quickly assign permission sets to your running user without having to use the Salesforce CLI. The command uses the CLI to gather your current user ID and then queries the permission sets on the org that are not assigned to your user yet. It then prompts you to select the permission sets you want to assign to your user. Once you make your selection, the extension will use the CLI to assign the selected permission sets to your user.
+
+![Assign Permission Sets](images/features/permsetsQuickpick.png)
+
+The extension shows the permission sets' labels, API names and namespaces, so you can easily identify the permission sets you want to assign.
+
 #### JSON Settings
 
 The extension reads the `package.json` file at the root of your SFDX project. There you may add some settings to customize the behavior of the extension. For example:
