@@ -42,6 +42,8 @@ The extension shows the permission sets' labels, API names and namespaces, so yo
 
 #### JSON Settings
 
+##### Namespace and label's default language
+
 The extension reads the `package.json` file at the root of your SFDX project. There you may add some settings to customize the behavior of the extension. For example:
 
 ```json
@@ -59,6 +61,27 @@ The extension reads the `package.json` file at the root of your SFDX project. Th
 * **Namespace**: Use this setting to specify a prefix for the labels you create with the command palette. This is useful for avoiding naming conflicts with existing labels in your project. By default, the extension won't add a prefix to the label name you enter in the command palette. If you want to use a prefix, you can specify it in the `namespace` setting
 
 * **Default Language**: Use this setting to specify the default language for the custom labels you create with the command palette. By default, the extension will use `en_US` as the default language. If you want to use a different language, you can specify it in the `defaultLanguage` setting. The extension will create the custom label with the specified language and add it to the appropriate metadata file.
+
+##### Customize the behavior when editing sfdx-project.json
+
+* **copyProjectNameToPackageJson**: When set to `true`, the extension will automatically copy the project name from your Salesforce metadata to your `package.json` file. This ensures consistency between your Salesforce project and npm package naming. By default, this setting is `false`.
+
+* **copyProjectDescriptionToPackageJson**: When set to `true`, the extension will automatically copy the project description from your Salesforce metadata to your `package.json` file. This helps maintain consistent documentation across your project files. By default, this setting is `false`.
+
+* **copyVersionToPackageJson**: When set to `true`, the extension will automatically sync the version number from your Salesforce project to your `package.json` file. This ensures your npm package versioning stays aligned with your Salesforce project versioning. By default, this setting is `false`.
+
+Example configuration:
+
+```json
+// package.json
+{
+  "salesforce": {
+    "copyProjectNameToPackageJson": true,
+    "copyProjectDescriptionToPackageJson": true,
+    "copyVersionToPackageJson": true
+  }
+}
+```
 
 ## Planned features
 
