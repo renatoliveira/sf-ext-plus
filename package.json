@@ -2,7 +2,7 @@
   "name": "sf-ext-plus",
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "icon": "images/icon.png",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
@@ -33,6 +33,10 @@
         "command": "sf-ext-plus.useExistingLabel",
         "title": "Salesforce Ext.+: Use an existing label",
         "enablement": "editorHasSelection"
+      },
+      {
+        "command": "sf-ext-plus.assignPermissionSets",
+        "title": "Salesforce Ext.+: Assign Permission Sets"
       }
     ]
   },
