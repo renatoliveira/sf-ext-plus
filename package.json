@@ -58,7 +58,8 @@
     "pretest": "npm run compile-tests && compile && npm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "sign": "sh sign_latest.sh"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
