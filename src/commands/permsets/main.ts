@@ -2,11 +2,11 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import labels from '../../labels';
+import { clearAndHideStatusBarText, setStatusBarText, setUpStatusBarWidget } from '../shared/utilities';
 
 const COMMAND_NAME = 'assignPermissionSets';
 
 let salesforceUserId: string | undefined = undefined;
-let statusBarIdentifier: vscode.StatusBarItem | undefined = undefined;
 
 export async function activate(context: vscode.ExtensionContext) {
     const commands = await vscode.commands.getCommands(true);
@@ -50,26 +50,6 @@ class PermissionSetQuickPickImpl implements vscode.QuickPickItem {
         this.label = label;
         this.description = description;
         this.value = value;
-    }
-}
-
-function setUpStatusBarWidget() {
-    if (!statusBarIdentifier) {
-        statusBarIdentifier = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    }
-}
-
-function setStatusBarText(text: string) {
-    if (statusBarIdentifier) {
-        statusBarIdentifier.text = text;
-        statusBarIdentifier.show();
-    }
-}
-
-function clearAndHideStatusBarText() {
-    if (statusBarIdentifier) {
-        statusBarIdentifier.text = '';
-        statusBarIdentifier.hide();
     }
 }
 
@@ -126,7 +106,7 @@ async function assignPermissionSets(permissionSetNames: string[]) {
     // const assignCommand = `sf org assign permset ${selectedItems.map(psItem => { return `--name ${psItem.value}` }).join(',')} --json`;
     const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}` }).join(' ')} --json`;
 
-    setStatusBarText(`Assigning permission sets...`);
+    const messageId = setStatusBarText(`Assigning permission sets...`);
 
     const assignCommandResult = JSON.parse(await executeShellCommand(assignCommand));
 
