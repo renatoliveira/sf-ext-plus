@@ -33,6 +33,10 @@
         "command": "sf-ext-plus.useExistingLabel",
         "title": "Salesforce Ext.+: Use an existing label",
         "enablement": "editorHasSelection"
+      },
+      {
+        "command": "sf-ext-plus.assignPermissionSets",
+        "title": "Salesforce Ext.+: Assign Permission Sets"
       }
     ]
   },
