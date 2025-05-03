@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 
+let statusBarIdentifier: vscode.StatusBarItem | undefined = undefined;
+let lastMessageId: number = 0;
+
 export async function checkIfWorkspaceIsValidSfdxProject() {
     const workspaceFolders = vscode.workspace.workspaceFolders;
 
@@ -12,4 +15,32 @@ export async function checkIfWorkspaceIsValidSfdxProject() {
     const sfdxProjectFileExists = await Promise.resolve(vscode.workspace.fs.stat(sfdxProjectFile)).then(() => true).catch(() => false);
 
     return sfdxProjectFileExists;
+}
+
+export function setUpStatusBarWidget() {
+    if (!statusBarIdentifier) {
+        statusBarIdentifier = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+    }
+}
+
+export function setStatusBarText(text: string) {
+    if (statusBarIdentifier) {
+        lastMessageId += 1;
+        statusBarIdentifier.text = text;
+        statusBarIdentifier.show();
+    }
+
+    return lastMessageId;
+}
+
+export function clearAndHideStatusBarText(messageId?: number | undefined) {
+    if (!messageId || messageId < lastMessageId) {
+        return;
+    }
+
+    if (statusBarIdentifier) {
+
+        statusBarIdentifier.text = '';
+        statusBarIdentifier.hide();
+    }
 }
