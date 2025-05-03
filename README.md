@@ -70,3 +70,18 @@ The extension reads the `package.json` file at the root of your SFDX project. Th
 - Flow support
   - Find and replace in Flow variables.
   - Find where a certain type, sobject or record type is used within a flow
+
+## Authentication
+
+![PGP](https://img.shields.io/keybase/pgp/thelavasailor?style=flat&label=PGP&labelColor=black&color=orange&cacheSeconds=28800)
+
+You'll find at the "signatures" folder signed files for the releases and for the license file, so you can verify that the author is indeed the one who signed the files. The key is available at [the author's keybase profile](https://keybase.io/thelavasailor).
+
+### Verifying the signature
+
+Using keybase, you can verify the signatures using:
+
+```
+keybase verify --detached signatures/LICENSE.sig -i LICENSE
+keybase verify --detached signatures/vscode-sf-ext-plus-[semver code].vsix.sig -i vscode-sf-ext-plus-[semver code].vsix
+```
