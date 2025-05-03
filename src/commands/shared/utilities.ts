@@ -34,12 +34,11 @@ export function setStatusBarText(text: string) {
 }
 
 export function clearAndHideStatusBarText(messageId?: number | undefined) {
-    if (!messageId || messageId < lastMessageId) {
+    if ((messageId && lastMessageId) && messageId < lastMessageId) {
         return;
     }
 
     if (statusBarIdentifier) {
-
         statusBarIdentifier.text = '';
         statusBarIdentifier.hide();
     }
