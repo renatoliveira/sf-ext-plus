@@ -106,7 +106,7 @@ async function assignPermissionSets(permissionSetNames: string[]) {
     // const assignCommand = `sf org assign permset ${selectedItems.map(psItem => { return `--name ${psItem.value}` }).join(',')} --json`;
     const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}` }).join(' ')} --json`;
 
-    setStatusBarText(`Assigning permission sets...`);
+    const messageId = setStatusBarText(`Assigning permission sets...`);
 
     const assignCommandResult = JSON.parse(await executeShellCommand(assignCommand));
 
