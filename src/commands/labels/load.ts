@@ -133,7 +133,14 @@ async function loadLabelsInWorkspace(silent: boolean = false) {
         return;
     }
 
-    labelFiles = await vscode.workspace.findFiles('**/force-app/**/labels/*.labels-meta.xml');
+    // Search for both standard and decomposed metadata label files
+    const labelFilesPromise = Promise.all([
+        vscode.workspace.findFiles('**/force-app/**/labels/*.labels-meta.xml'),
+        vscode.workspace.findFiles('**/force-app/**/labels/*.label-meta.xml')
+    ]);
+
+    const [standardLabelFiles, decomposedLabelFiles] = await labelFilesPromise;
+    labelFiles = [...standardLabelFiles, ...decomposedLabelFiles];
 
     if (labelFiles.length === 0) {
         if (!silent) {
