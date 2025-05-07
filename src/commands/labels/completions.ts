@@ -18,10 +18,11 @@ export async function getCompletionProvider() {
                 }
 
                 const completionItems: vscode.CompletionItem[] = [];
+                const labelStore = getSalesforceLabelsStore();
 
-                for (const labelName in getSalesforceLabelsStore().salesforceLabels) {
+                for (const labelName in labelStore.salesforceLabels) {
                     try {
-                        const label = getSalesforceLabelsStore().salesforceLabels[labelName];
+                        const label = labelStore.salesforceLabels[labelName];
                         const item = new vscode.CompletionItem(labelName, vscode.CompletionItemKind.Variable);
 
                         // Show label value in detail

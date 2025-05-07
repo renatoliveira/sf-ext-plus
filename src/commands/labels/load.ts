@@ -39,7 +39,7 @@ class SalesforceLabelsStore {
     }
 
     public getAllLabels(): CustomLabel[] {
-        return Object.values(this.salesforceLabels);
+        return Object.values(this.salesforceLabels).sort();
     }
 
     public clear() {

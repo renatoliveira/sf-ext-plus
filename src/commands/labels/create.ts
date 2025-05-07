@@ -62,7 +62,7 @@ export async function activateLabelCreateOnPalette(context: vscode.ExtensionCont
         }).flat();
 
         // remove duplicate labels
-        activeLabelCategories = [...new Set(activeLabelCategories.flat())];
+        activeLabelCategories = [...new Set(activeLabelCategories.flat())].sort();
 
         // for the categories, load from activeLabelCategories
         let selectedCategories = await vscode.window.showQuickPick(
