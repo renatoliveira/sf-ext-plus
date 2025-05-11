@@ -2,6 +2,7 @@
 import * as vscode from 'vscode';
 
 import { checkIfWorkspaceIsValidSfdxProject, clearAndHideStatusBarText, setStatusBarText } from '../shared/utilities';
+import { copyProjectDescription, copyProjectName, copyVersion, setUpInstallationLink } from './copiers';
 
 const THREE_SECONDS = 3000;
 
@@ -44,41 +45,21 @@ function activateFileWatcher() {
         // if the "salesforce.copyProjectNameToPackageJson" setting is set to true
         // it copies the "package" attribute from the package directory to the package.json
         // file's name
-        if (settings && settings.copyProjectNameToPackageJson) {
-            if (packageJsonObj.name !== sfdxProjectJson.name) {
-                // set the name to the package directory's name
-                packageJsonObj.name = sfdxProjectJson.name;
-            }
-        }
+        copyProjectName(settings, packageJsonObj, sfdxProjectJson);
 
         // if the "salesforce.copyProjectDescriptionToPackageJson" setting is set to true
         // it copies the "description" attribute from the default package directory to the
         // package.json file's description
-        if (settings && settings.copyProjectDescriptionToPackageJson) {
-            if (packageJsonObj.description !== defaultPackageDirectory.versionDescription) {
-                // set the description to the package directory's description
-                packageJsonObj.description = defaultPackageDirectory.versionDescription;
-            }
-        }
+        copyProjectDescription(settings, packageJsonObj, defaultPackageDirectory);
 
-        if (settings && settings.copyVersionToPackageJson) {
-            // check if the version is already set to the same value
-            if (packageJsonObj.version !== defaultPackageDirectory.versionNumber) {
-                // SFDX version number format is typically major.minor.patch.build
-                // Parse the version number to extract only major.minor.patch
-                const versionFromSfdx = defaultPackageDirectory.versionNumber;
-                const versionParts = versionFromSfdx.split('.');
+        // if the "salesforce.copyVersionToPackageJson" setting is set to true
+        // it copies the "versionNumber" attribute from the default package directory to the
+        // package.json file's version
+        copyVersion(settings, packageJsonObj, defaultPackageDirectory);
 
-                // Take only the first three parts (major.minor.patch)
-                if (versionParts.length >= 3) {
-                    packageJsonObj.version = versionParts.slice(0, 3).join('.');
-                } else {
-                    vscode.window.showErrorMessage(`Invalid version number format in sfdx-project.json: ${defaultPackageDirectory.versionNumber}`);
-
-                    return;
-                }
-            }
-        }
+        // if the "salesforce.setUpInstallationLink" setting is set to true
+        // it sets up the installation link URL for the package in the package.json file
+        setUpInstallationLink(settings, sfdxProjectJson, packageJsonObj);
 
         // Update the package.json file with the new version
         await vscode.workspace.fs.writeFile(
