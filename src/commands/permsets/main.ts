@@ -74,7 +74,7 @@ async function getPermissionSetsAvailableForAssignment() {
         return [];
     }
 
-    const permSetsNotAssignedMessage = `Read ${queryResult.result.records.length} permission sets from the org that are NOT assigned to you.`
+    const permSetsNotAssignedMessage = `Read ${queryResult.result.records.length} permission sets from the org that are NOT assigned to you.`;
 
     setStatusBarText(permSetsNotAssignedMessage);
 
@@ -103,10 +103,9 @@ async function getPermissionSetsAvailableForAssignment() {
 }
 
 async function assignPermissionSets(permissionSetNames: string[]) {
-    // const assignCommand = `sf org assign permset ${selectedItems.map(psItem => { return `--name ${psItem.value}` }).join(',')} --json`;
-    const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}` }).join(' ')} --json`;
+    const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}`; }).join(' ')} --json`;
 
-    const messageId = setStatusBarText(`Assigning permission sets...`);
+    setStatusBarText(`Assigning permission sets...`);
 
     const assignCommandResult = JSON.parse(await executeShellCommand(assignCommand));
 
