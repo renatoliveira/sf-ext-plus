@@ -37,6 +37,10 @@
       {
         "command": "sf-ext-plus.assignPermissionSets",
         "title": "Salesforce Ext.+: Assign Permission Sets"
+      },
+      {
+        "command": "sf-ext-plus.packaging",
+        "title": "Salesforce Ext.+: Packaging Commands"
       }
     ]
   },
@@ -80,7 +84,7 @@
     "ts-jest": "^29.3.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2",
-    "vscode": "^1.1.34"
+    "vscode": "^1.1.37"
   },
   "packageManager": "yarn@4.4.1+sha512.f825273d0689cc9ead3259c14998037662f1dcd06912637b21a450e8da7cfeb4b1965bbee73d16927baa1201054126bc385c6f43ff4aa705c8631d26e12460f1",
   "dependencies": {

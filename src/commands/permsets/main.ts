@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import labels from '../../labels';
-import { clearAndHideStatusBarText, setStatusBarText, setUpStatusBarWidget } from '../shared/utilities';
+import { clearAndHideStatusBarText, executeShellCommand, setStatusBarText, setUpStatusBarWidget } from '../shared/utilities';
 
 const COMMAND_NAME = 'assignPermissionSets';
 
@@ -125,6 +125,7 @@ async function assignPermissionSets(permissionSetNames: string[]) {
         vscode.window.showInformationMessage(`Assigned ${permissionSetNames.length} permission sets to ${salesforceUserId}.`);
     } else {
         const failureMessages = assignCommandResult.result.failures.map((failure: { message: string }) => failure.message).join(', ');
+
         vscode.window.showWarningMessage(`Some permission sets were not assigned: ${failureMessages}`);
     }
 
@@ -162,13 +163,3 @@ async function getSalesforceUserId() {
 
     return salesforceUserId;
 }
-
-const executeShellCommand = (cmd: string) =>
-    new Promise<string>((resolve, reject) => {
-        cp.exec(cmd, (err, out) => {
-            if (err) {
-                return reject(err);
-            }
-            return resolve(out);
-        });
-    });
