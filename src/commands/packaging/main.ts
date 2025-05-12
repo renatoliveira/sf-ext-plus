@@ -33,10 +33,10 @@ async function loadPackageCommand(_context: vscode.ExtensionContext) {
     const packageCommandOptions = [
         // { label: 'Create Package', value: 'create' },
         // { label: 'Delete Package', value: 'delete' },
+        // { label: 'Update Package', value: 'update' }
         { label: 'Install Package', value: 'install' },
         { label: 'List Packages', value: 'list' },
-        // { label: 'Uninstall Package', value: 'uninstall' },
-        // { label: 'Update Package', value: 'update' }
+        { label: 'Uninstall Package', value: 'uninstall' },
     ];
 
     const selectedPackageCommand = await vscode.window.showQuickPick(packageCommandOptions, {
@@ -54,6 +54,9 @@ async function loadPackageCommand(_context: vscode.ExtensionContext) {
             break;
         case 'list':
             listPackages();
+            break;
+        case 'uninstall':
+            uninstallPackage();
             break;
         default:
             vscode.window.showErrorMessage('Invalid package command selected.');
@@ -246,6 +249,76 @@ async function listPackages() {
     });
 
     showListingPackagesProgressNotification.then(() => {
+        intervalId && clearInterval(intervalId);
+    });
+}
+
+async function uninstallPackage() {
+    // prompt for the package id
+    const packageId = await vscode.window.showInputBox({
+        prompt: 'Enter the package ID to uninstall',
+        placeHolder: 'Package ID (04t...)',
+        ignoreFocusOut: true
+    });
+
+    if (!packageId) {
+        return;
+    }
+    let intervalId: NodeJS.Timeout;
+
+    // execute the uninstall command
+    const uninstallCommand = `sf package uninstall --package ${packageId} --wait 5 --json`;
+
+    const showUninstallingPackageProgressNotification = vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: `Uninstalling package ${packageId}...`,
+        cancellable: false
+    }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
+        progress.report({ increment: 0 });
+
+        try {
+            const startTime = Date.now();
+            let previousIncrement = 0;
+
+            // Calculate total wait time in milliseconds (5 minutes)
+            const totalWaitTimeMs = 5 * 60 * 1000;
+
+            intervalId = setInterval(() => {
+                // Calculate the current progress percentage (0-95) based on the 5-minute wait time
+                const elapsedTime = Date.now() - startTime;
+                const currentProgress = Math.min(Math.floor((elapsedTime / totalWaitTimeMs) * 95), 95);
+
+                // Calculate the increment since last update
+                const incrementDelta = currentProgress - previousIncrement;
+
+                if (incrementDelta > 0) {
+                    previousIncrement = currentProgress;
+                    progress.report({ increment: incrementDelta });
+                }
+            }, 1000);
+
+            const uninstallResult = await executeShellCommand(uninstallCommand);
+            const uninstallResultJson = JSON.parse(uninstallResult);
+
+            let message = `Package ${packageId} uninstalled successfully.`;
+
+            if (uninstallResultJson.status === 0) {
+                vscode.window.showInformationMessage(`Package ${packageId} uninstalled successfully.`);
+            } else {
+                message = `Failed to uninstall package ${packageId}: ${uninstallResultJson.message}`;
+                vscode.window.showErrorMessage(`Failed to uninstall package ${packageId}: ${uninstallResultJson.message}`);
+            }
+
+            setTimeout(() => {
+                progress.report({ increment: 100 });
+            }, 250);
+        } catch (error) {
+            console.error(error);
+            progress.report({ increment: 100, message: 'Done' });
+        }
+    });
+
+    showUninstallingPackageProgressNotification.then(() => {
         intervalId && clearInterval(intervalId);
     });
 }
