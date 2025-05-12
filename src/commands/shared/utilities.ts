@@ -1,3 +1,4 @@
+import * as cp from 'child_process';
 import * as vscode from 'vscode';
 
 let statusBarIdentifier: vscode.StatusBarItem | undefined = undefined;
@@ -43,3 +44,13 @@ export function clearAndHideStatusBarText(messageId?: number | undefined) {
         statusBarIdentifier.hide();
     }
 }
+
+export const executeShellCommand = (cmd: string) =>
+    new Promise<string>((resolve, reject) => {
+        cp.exec(cmd, (err, out) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(out);
+        });
+    });

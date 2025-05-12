@@ -2,7 +2,7 @@
 import * as vscode from 'vscode';
 import * as cp from 'child_process';
 import labels from '../../labels';
-import { clearAndHideStatusBarText, setStatusBarText, setUpStatusBarWidget } from '../shared/utilities';
+import { clearAndHideStatusBarText, executeShellCommand, setStatusBarText, setUpStatusBarWidget } from '../shared/utilities';
 
 const COMMAND_NAME = 'assignPermissionSets';
 
@@ -74,7 +74,7 @@ async function getPermissionSetsAvailableForAssignment() {
         return [];
     }
 
-    const permSetsNotAssignedMessage = `Read ${queryResult.result.records.length} permission sets from the org that are NOT assigned to you.`
+    const permSetsNotAssignedMessage = `Read ${queryResult.result.records.length} permission sets from the org that are NOT assigned to you.`;
 
     setStatusBarText(permSetsNotAssignedMessage);
 
@@ -103,10 +103,9 @@ async function getPermissionSetsAvailableForAssignment() {
 }
 
 async function assignPermissionSets(permissionSetNames: string[]) {
-    // const assignCommand = `sf org assign permset ${selectedItems.map(psItem => { return `--name ${psItem.value}` }).join(',')} --json`;
-    const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}` }).join(' ')} --json`;
+    const assignCommand = `sf org assign permset ${permissionSetNames.map(psName => { return `--name ${psName}`; }).join(' ')} --json`;
 
-    const messageId = setStatusBarText(`Assigning permission sets...`);
+    setStatusBarText(`Assigning permission sets...`);
 
     const assignCommandResult = JSON.parse(await executeShellCommand(assignCommand));
 
@@ -126,6 +125,7 @@ async function assignPermissionSets(permissionSetNames: string[]) {
         vscode.window.showInformationMessage(`Assigned ${permissionSetNames.length} permission sets to ${salesforceUserId}.`);
     } else {
         const failureMessages = assignCommandResult.result.failures.map((failure: { message: string }) => failure.message).join(', ');
+
         vscode.window.showWarningMessage(`Some permission sets were not assigned: ${failureMessages}`);
     }
 
@@ -163,13 +163,3 @@ async function getSalesforceUserId() {
 
     return salesforceUserId;
 }
-
-const executeShellCommand = (cmd: string) =>
-    new Promise<string>((resolve, reject) => {
-        cp.exec(cmd, (err, out) => {
-            if (err) {
-                return reject(err);
-            }
-            return resolve(out);
-        });
-    });
