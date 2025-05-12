@@ -322,26 +322,3 @@ async function uninstallPackage() {
         intervalId && clearInterval(intervalId);
     });
 }
-
-/* this is what the command looks like
-Commands to develop and install unlocked packages and managed 2GP packages.
-
-USAGE
-  $ sf package COMMAND
-
-TOPICS
-  package install    Command to report on installed packages.
-  package installed  Command to list installed packages.
-  package uninstall  Command to report on uninstalled packages.
-  package version    Commands to manage package versions.
-
-COMMANDS
-  package create     Create a package.
-  package delete     Delete a package.
-  package install    Install a version of a package in the target org.
-  package list       List all packages in the Dev Hub org.
-  package uninstall  Uninstall a second-generation package from the target org.
-  package update     Update package details.
-
-
-*/
