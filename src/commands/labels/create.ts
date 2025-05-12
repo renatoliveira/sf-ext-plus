@@ -202,8 +202,8 @@ export async function getLabelCreateOnCodeActionProvider() {
         provideCodeActions(
             document: vscode.TextDocument,
             range: vscode.Range | vscode.Selection,
-            context: vscode.CodeActionContext,
-            token: vscode.CancellationToken
+            _context: vscode.CodeActionContext,
+            _token: vscode.CancellationToken
         ): vscode.ProviderResult<(vscode.Command | vscode.CodeAction)[]> {
             const result: vscode.CodeAction[] = [];
 
