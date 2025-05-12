@@ -31,12 +31,12 @@ async function loadPackageCommand(_context: vscode.ExtensionContext) {
 
     // show options for package commands
     const packageCommandOptions = [
-        { label: 'Create Package', value: 'create' },
-        { label: 'Delete Package', value: 'delete' },
+        // { label: 'Create Package', value: 'create' },
+        // { label: 'Delete Package', value: 'delete' },
         { label: 'Install Package', value: 'install' },
         { label: 'List Packages', value: 'list' },
-        { label: 'Uninstall Package', value: 'uninstall' },
-        { label: 'Update Package', value: 'update' }
+        // { label: 'Uninstall Package', value: 'uninstall' },
+        // { label: 'Update Package', value: 'update' }
     ];
 
     const selectedPackageCommand = await vscode.window.showQuickPick(packageCommandOptions, {
@@ -48,8 +48,16 @@ async function loadPackageCommand(_context: vscode.ExtensionContext) {
         return;
     }
 
-    if (selectedPackageCommand.value === 'install') {
-        installPackage();
+    switch (selectedPackageCommand.value) {
+        case 'install':
+            installPackage();
+            break;
+        case 'list':
+            listPackages();
+            break;
+        default:
+            vscode.window.showErrorMessage('Invalid package command selected.');
+            break;
     }
 }
 
@@ -156,6 +164,89 @@ async function installPackage() {
         } finally {
             intervalId && clearInterval(intervalId);
         }
+    });
+}
+
+interface PackageQuickPickItem extends vscode.QuickPickItem {
+    label: string;
+    description: string;
+    detail: string;
+}
+
+async function listPackages() {
+    // execute the list command
+    const listCommand = `sf package installed list --json`;
+    const MINUTES = 1;
+    let intervalId: NodeJS.Timeout | undefined;
+    let packageList: PackageQuickPickItem[] = [];
+
+    const showListingPackagesProgressNotification = vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: 'Listing packages in org...',
+        cancellable: false
+    }, async (progress: vscode.Progress<{ message?: string; increment?: number }>) => {
+        progress.report({ increment: 0 });
+
+        try {
+            const startTime = Date.now();
+            let previousIncrement = 0;
+
+            // Calculate total wait time in milliseconds (1 minute)
+            const totalWaitTimeMs = MINUTES * 60 * 1000;
+
+            intervalId = setInterval(() => {
+                // Calculate the current progress percentage (0-95) based on the 5-minute wait time
+                const elapsedTime = Date.now() - startTime;
+                const currentProgress = Math.min(Math.floor((elapsedTime / totalWaitTimeMs) * 95), 95);
+
+                // Calculate the increment since last update
+                const incrementDelta = currentProgress - previousIncrement;
+
+                if (incrementDelta > 0) {
+                    previousIncrement = currentProgress;
+                    progress.report({ increment: incrementDelta });
+                }
+            }, 1000);
+
+            const listResult = await executeShellCommand(listCommand);
+            const listResultJson = JSON.parse(listResult);
+
+            if (listResultJson.status === 0) {
+                progress.report({ increment: 100, message: 'Done' });
+                intervalId && clearInterval(intervalId);
+
+                vscode.window.showInformationMessage('Packages listed successfully.');
+
+                // show listed packages as quick pick
+                packageList = listResultJson.result.map((pkg: any) => ({
+                    label: pkg.SubscriberPackageName,
+                    description: pkg.SubscriberPackageVersionId,
+                    detail: `Version: ${pkg.SubscriberPackageVersionNumber} ${pkg.SubscriberPackageNamespace !== null ? `(${pkg.SubscriberPackageNamespace})` : ''}`
+                }));
+
+                const selectedPackage = await vscode.window.showQuickPick(packageList, {
+                    placeHolder: 'Select a package to copy its ID',
+                    ignoreFocusOut: true
+                });
+
+                if (selectedPackage) {
+                    // Copy the package ID to the clipboard
+                    await vscode.env.clipboard.writeText(selectedPackage.description);
+
+                    // Show a message indicating the package ID has been copied
+                    vscode.window.showInformationMessage(`Copied to clipboard the package's Id: ${selectedPackage.label} (${selectedPackage.description})`);
+                }
+            } else {
+                vscode.window.showErrorMessage(`Failed to list packages: ${listResultJson.message}`);
+            }
+        } catch (error) {
+            console.error(error);
+            progress.report({ increment: 100, message: 'Done' });
+        }
+    });
+
+    showListingPackagesProgressNotification.then(() => {
+        intervalId && clearInterval(intervalId);
     });
 }
 
