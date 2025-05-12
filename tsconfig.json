@@ -14,5 +14,11 @@
 		"noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
 		"noUnusedParameters": true, /* Report errors on unused parameters. */
 		"isolatedModules": true, /* Ensure that each file can be safely transpiled independently. */
-	}
+	},
+	"exclude": [
+		"node_modules",
+		"dist",
+		"coverage",
+		"build"
+	]
 }
