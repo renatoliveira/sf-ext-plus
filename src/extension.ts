@@ -4,6 +4,7 @@ import { activateLabelCreateOnPalette } from './commands/labels/create';
 import { activate as activatePermissionSetCommands } from './commands/permsets/main';
 import { activate as activeProjectFileWatcher } from './commands/appversion/main';
 import { activate as activatePackageCommands } from './commands/packaging/main';
+import { activate as activateFieldsCommands } from './commands/fields/main';
 
 export function activate(context: vscode.ExtensionContext) {
     // #region labels
@@ -28,6 +29,12 @@ export function activate(context: vscode.ExtensionContext) {
     // #region package commands
 
     activatePackageCommands(context);
+
+    // #endregion
+
+    // #region fields commands
+
+    activateFieldsCommands(context);
 
     // #endregion
 }
