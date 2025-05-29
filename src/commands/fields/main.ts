@@ -305,9 +305,13 @@ async function selectTargetObject(): Promise<string | undefined> {
     });
 
     const objects = objectFolders.map((folder: string) => {
-        const parts = folder.split(path.sep);
-        return parts[parts.length - 2];
-    }).sort();
+        // Remove trailing slash and split path
+        const cleanPath = folder.replace(/\/$/, '');
+        const parts = cleanPath.split(path.sep);
+        // Get the last part which should be the object name
+        return parts[parts.length - 1];
+    }).filter(obj => obj && obj !== 'objects') // Filter out empty strings and 'objects' folder
+        .sort();
 
     return await vscode.window.showQuickPick(objects, {
         placeHolder: 'Select target object'
