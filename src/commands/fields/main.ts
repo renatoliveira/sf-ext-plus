@@ -57,7 +57,7 @@ async function loadFieldsByType(_context: vscode.ExtensionContext) {
     }
 
     const selectedFieldType = await selectFieldType(fieldTypes);
-    if (!selectedFieldType) return;
+    if (!selectedFieldType) { return; }
 
     const fieldsOfType = fieldInfoByType.get(selectedFieldType) || [];
     if (fieldsOfType.length === 0) {
@@ -66,7 +66,7 @@ async function loadFieldsByType(_context: vscode.ExtensionContext) {
     }
 
     const fieldInfo = await selectField(fieldsOfType, selectedFieldType);
-    if (!fieldInfo) return;
+    if (!fieldInfo) { return; }
 
     await handleFieldAction(fieldInfo, objectsWithPaths);
 }
@@ -113,7 +113,7 @@ async function loadFieldInfo() {
 
         for (const fieldFile of fieldFiles) {
             const fieldData = parseFieldFile(fieldFile, rootPath);
-            if (!fieldData) continue;
+            if (!fieldData) { continue; }
 
             const { fieldType, fieldName, objectName, relativeObjectPath } = fieldData;
 
@@ -278,7 +278,7 @@ async function selectField(fieldsOfType: Array<{ name: string, path: string, obj
         }
     );
 
-    if (!selectedField) return null;
+    if (!selectedField) { return null; }
 
     const fieldName = selectedField.split(' ')[0];
     const fieldInfo = fieldsOfType.find(f => f.name === fieldName);
@@ -307,7 +307,7 @@ async function handleFieldAction(fieldInfo: { name: string, path: string, object
         { placeHolder: `What do you want to do with ${fieldInfo.name}?` }
     );
 
-    if (!action) return;
+    if (!action) { return; }
 
     if (action === 'Open field') {
         await openField(fieldInfo.path);
@@ -329,10 +329,10 @@ async function openField(fieldPath: string) {
 
 async function copyFieldToObject(fieldInfo: { name: string, path: string, objectName: string }, objectsWithPaths: Map<string, ObjectInfo>) {
     const targetObject = await selectTargetObject(objectsWithPaths);
-    if (!targetObject) return;
+    if (!targetObject) { return; }
 
     const selectedObjectPath = await selectObjectPath(targetObject, objectsWithPaths);
-    if (!selectedObjectPath) return;
+    if (!selectedObjectPath) { return; }
 
     await performFieldCopy(fieldInfo, targetObject, selectedObjectPath);
 }
