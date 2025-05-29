@@ -119,10 +119,20 @@ async function loadFieldInfo() {
 
             // Check if object info exists, if not, create it
             if (!objectsWithPaths.has(objectName)) {
+                const objectFile = path.join(rootPath, relativeObjectPath, `${objectName}.object-meta.xml`);
+                let objectLabel = objectName;
+                let objectDescription = '';
+
+                if (fs.existsSync(objectFile)) {
+                    const objectData = parseObjectFile(objectFile);
+                    objectLabel = objectData?.label || objectName;
+                    objectDescription = objectData?.description || '';
+                }
+
                 objectsWithPaths.set(objectName, {
                     name: objectName,
-                    label: '', // You might need to load this from object metadata
-                    description: '', // You might need to load this from object metadata
+                    label: objectLabel,
+                    description: objectDescription,
                     paths: []
                 });
             }
@@ -154,6 +164,34 @@ async function loadFieldInfo() {
     }
 
     return { fieldTypes, fieldInfoByType, objectsWithPaths };
+}
+
+/**
+ * Parses an object file (XML) to extract the label and description of a CustomObject.
+ *
+ * @param {string} objectFile - The path to the object file.
+ * @returns {{ label: string; description: string; } | null} An object containing the label and description, or null if parsing fails or the object is invalid.
+ */
+function parseObjectFile(objectFile: string) {
+    try {
+        const fileContent = fs.readFileSync(objectFile, 'utf8');
+        const parser = new XMLParser({
+            ignoreAttributes: false
+        });
+        const result = parser.parse(fileContent);
+
+        if (!result.CustomObject || !result.CustomObject.label) {
+            return null;
+        }
+
+        const label = result.CustomObject.label;
+        const description = result.CustomObject.description || '';
+
+        return { label, description };
+    } catch (error) {
+        console.error(`Error parsing object file ${objectFile}:`, error);
+        return null;
+    }
 }
 
 /**
@@ -308,9 +346,9 @@ async function copyFieldToObject(fieldInfo: { name: string, path: string, object
  */
 async function selectTargetObject(objectsWithPaths: Map<string, ObjectInfo>): Promise<string | undefined> {
     const objectPicks = Array.from(objectsWithPaths.values()).map(objectInfo => ({
-        label: objectInfo.label.toLowerCase() || objectInfo.name,
-        description: objectInfo.description.toLowerCase(),
-        detail: objectInfo.name.toLowerCase(),
+        label: objectInfo.label || objectInfo.name,
+        description: objectInfo.description,
+        detail: objectInfo.name,
         objectName: objectInfo.name
     }));
 
@@ -395,9 +433,20 @@ async function performFieldCopy(fieldInfo: { name: string, path: string, objectN
 
         vscode.window.showInformationMessage(`Field ${fieldInfo.name} copied to ${targetObject} successfully.`);
 
-        // Open the copied file
-        const document = await vscode.workspace.openTextDocument(targetFilePath);
-        await vscode.window.showTextDocument(document);
+        // Get the workspace folder URI
+        const workspaceFolderUri = workspaceFolders[0].uri;
+        const packageJsonUri = vscode.Uri.joinPath(workspaceFolderUri, 'package.json');
+        const packageJson = await vscode.workspace.fs.readFile(packageJsonUri);
+        const packageJsonObj = JSON.parse(packageJson.toString());
+
+        // read the settings from the package.json file
+        const settings = packageJsonObj.salesforce;
+
+        if (settings && settings.openCopiedField) {
+            // Open the copied file
+            const document = await vscode.workspace.openTextDocument(targetFilePath);
+            await vscode.window.showTextDocument(document);
+        }
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
         vscode.window.showErrorMessage(`Error copying field: ${errorMessage}`);
