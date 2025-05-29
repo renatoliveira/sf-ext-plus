@@ -84,11 +84,18 @@ async function loadFieldsByType(_context: vscode.ExtensionContext) {
  * - `objectsWithPaths`: Map where keys are object names and values are arrays of relative object paths
  *
  * @throws Shows error message via VS Code window if workspace folder is not found or file parsing fails
- */
+*/
+interface ObjectInfo {
+    name: string;
+    label: string;
+    description: string;
+    paths: string[];
+}
+
 async function loadFieldInfo() {
     const fieldTypes: string[] = [];
     const fieldInfoByType = new Map<string, Array<{ name: string, path: string, objectName: string }>>();
-    const objectsWithPaths = new Map<string, Array<string>>();
+    const objectsWithPaths = new Map<string, ObjectInfo>();
 
     try {
         const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -110,12 +117,20 @@ async function loadFieldInfo() {
 
             const { fieldType, fieldName, objectName, relativeObjectPath } = fieldData;
 
-            // Store object with its path
+            // Check if object info exists, if not, create it
             if (!objectsWithPaths.has(objectName)) {
-                objectsWithPaths.set(objectName, []);
+                objectsWithPaths.set(objectName, {
+                    name: objectName,
+                    label: '', // You might need to load this from object metadata
+                    description: '', // You might need to load this from object metadata
+                    paths: []
+                });
             }
-            if (!objectsWithPaths.get(objectName)!.includes(relativeObjectPath)) {
-                objectsWithPaths.get(objectName)!.push(relativeObjectPath);
+
+            // Store object path
+            const objectInfo = objectsWithPaths.get(objectName)!;
+            if (!objectInfo.paths.includes(relativeObjectPath)) {
+                objectInfo.paths.push(relativeObjectPath);
             }
 
             // Store field info by type
@@ -248,7 +263,7 @@ async function selectField(fieldsOfType: Array<{ name: string, path: string, obj
  * @param objectsWithPaths - Map containing object names as keys and arrays of their paths as values
  * @returns Promise that resolves when the selected action is completed or user cancels
  */
-async function handleFieldAction(fieldInfo: { name: string, path: string, objectName: string }, objectsWithPaths: Map<string, Array<string>>) {
+async function handleFieldAction(fieldInfo: { name: string, path: string, objectName: string }, objectsWithPaths: Map<string, ObjectInfo>) {
     const action = await vscode.window.showQuickPick(
         ['Open field', 'Copy to another object'],
         { placeHolder: `What do you want to do with ${fieldInfo.name}?` }
@@ -274,8 +289,8 @@ async function openField(fieldPath: string) {
     await vscode.window.showTextDocument(document);
 }
 
-async function copyFieldToObject(fieldInfo: { name: string, path: string, objectName: string }, objectsWithPaths: Map<string, Array<string>>) {
-    const targetObject = await selectTargetObject();
+async function copyFieldToObject(fieldInfo: { name: string, path: string, objectName: string }, objectsWithPaths: Map<string, ObjectInfo>) {
+    const targetObject = await selectTargetObject(objectsWithPaths);
     if (!targetObject) return;
 
     const selectedObjectPath = await selectObjectPath(targetObject, objectsWithPaths);
@@ -291,31 +306,22 @@ async function copyFieldToObject(fieldInfo: { name: string, path: string, object
  * @returns A Promise that resolves to the selected object name, or undefined if no selection was made or no workspace is found
  * @throws Shows an error message if no workspace folder is found
  */
-async function selectTargetObject(): Promise<string | undefined> {
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-        vscode.window.showErrorMessage('No workspace folder found.');
-        return;
-    }
+async function selectTargetObject(objectsWithPaths: Map<string, ObjectInfo>): Promise<string | undefined> {
+    const objectPicks = Array.from(objectsWithPaths.values()).map(objectInfo => ({
+        label: objectInfo.label.toLowerCase() || objectInfo.name,
+        description: objectInfo.description.toLowerCase(),
+        detail: objectInfo.name.toLowerCase(),
+        objectName: objectInfo.name
+    }));
 
-    const rootPath = workspaceFolders[0].uri.fsPath;
-    const objectFolders = glob.sync('**/objects/*/', {
-        cwd: rootPath,
-        absolute: true
-    });
+    const selectedObject = await vscode.window.showQuickPick(
+        objectPicks,
+        {
+            placeHolder: 'Select target object'
+        }
+    );
 
-    const objects = objectFolders.map((folder: string) => {
-        // Remove trailing slash and split path
-        const cleanPath = folder.replace(/\/$/, '');
-        const parts = cleanPath.split(path.sep);
-        // Get the last part which should be the object name
-        return parts[parts.length - 1];
-    }).filter(obj => obj && obj !== 'objects') // Filter out empty strings and 'objects' folder
-        .sort();
-
-    return await vscode.window.showQuickPick(objects, {
-        placeHolder: 'Select target object'
-    });
+    return selectedObject?.objectName;
 }
 
 /**
@@ -329,8 +335,9 @@ async function selectTargetObject(): Promise<string | undefined> {
  * @param objectsWithPaths - A map containing object names as keys and arrays of their paths as values
  * @returns A promise that resolves to the selected path string, or undefined if no path is selected or available
  */
-async function selectObjectPath(targetObject: string, objectsWithPaths: Map<string, Array<string>>): Promise<string | undefined> {
-    const targetObjectPaths = objectsWithPaths.get(targetObject) || [];
+async function selectObjectPath(targetObject: string, objectsWithPaths: Map<string, ObjectInfo>): Promise<string | undefined> {
+    const targetObjectInfo = objectsWithPaths.get(targetObject);
+    const targetObjectPaths = targetObjectInfo ? targetObjectInfo.paths : [];
 
     if (targetObjectPaths.length > 1) {
         return await vscode.window.showQuickPick(targetObjectPaths, {
