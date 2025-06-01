@@ -7,7 +7,6 @@ interface SoqlQueryDetail {
 }
 
 function extractSoqlQueries(text: string, languageId: string): SoqlQueryDetail[] {
-    console.log(`[extractSoqlQueries] Called for languageId: ${languageId}`);
     const queries: SoqlQueryDetail[] = [];
     let match;
 
@@ -26,7 +25,6 @@ function extractSoqlQueries(text: string, languageId: string): SoqlQueryDetail[]
             '(?:\\s+\\bFOR\\s+(VIEW|UPDATE|REFERENCE|TRACKING)\\b)?', // Optional FOR clause
             'gi' // Global and case-insensitive
         );
-        console.log(`[extractSoqlQueries] Attempting to match SOQL file regex.`);
         while ((match = soqlFileRegex.exec(text)) !== null) {
             const matchedQuery = match[0].trim();
             const startPos = match.index;
@@ -45,17 +43,13 @@ function extractSoqlQueries(text: string, languageId: string): SoqlQueryDetail[]
 
             const range = new vscode.Range(startLine, startChar, endLine, endChar);
 
-            console.log(`[extractSoqlQueries] Matched SOQL query: ${matchedQuery}`);
             queries.push({ queryText: matchedQuery, range });
-            console.log(`[extractSoqlQueries] Query range: ${range.start.line}:${range.start.character} to ${range.end.line}:${range.end.character}`);
         }
     } else if (languageId === 'apex') {
         // Regex for Apex: finds SOQL queries enclosed in square brackets [SELECT ...].
         const apexSoqlRegex = /\[\s*(SELECT\s[\s\S]+?FROM\s[\s\S]+?)\s*\]/gi;
-        console.log(`[extractSoqlQueries] Attempting to match Apex SOQL regex.`);
         while ((match = apexSoqlRegex.exec(text)) !== null) {
             if (!match[1] && match[1].trim().toUpperCase().startsWith('SELECT')) {
-                console.log(`[extractSoqlQueries] Match does not start with 'SELECT', skipping.`);
                 continue; // Skip matches that do not start with 'SELECT'
             }
 
@@ -76,21 +70,16 @@ function extractSoqlQueries(text: string, languageId: string): SoqlQueryDetail[]
 
             const range = new vscode.Range(startLine, startChar, endLine, endChar);
 
-            console.log(`[extractSoqlQueries] Matched SOQL query: ${matchedQuery}`);
             queries.push({ queryText: matchedQuery, range });
-            console.log(`[extractSoqlQueries] Query range: ${range.start.line}:${range.start.character} to ${range.end.line}:${range.end.character}`);
         }
     }
 
-    console.log(`[extractSoqlQueries] Extracted ${queries.length} SOQL queries from ${languageId} content.`);
 
     if (queries.length > 0) {
-        console.log(`[extractSoqlQueries] Queries:`, queries);
     }
 
     if (vscode.window.activeTextEditor?.document) {
         // Add diagnostic logging to check document details
-        console.log(`[extractSoqlQueries] Document path: ${vscode.window.activeTextEditor.document.uri.fsPath}, language ID: ${vscode.window.activeTextEditor.document.languageId}`);
     }
 
     return queries;
@@ -244,12 +233,10 @@ function registerSoqlNavigationCommand(context: vscode.ExtensionContext) {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    console.log('[activate] Extension "soql-preview" is now active.');
 
     // Check if the workspace is a valid SFDX project.
     // This might be relevant for context or advanced features, but basic query capture can work without it.
     const isSfdxProject = await checkIfWorkspaceIsValidSfdxProject();
-    console.log(`[activate] Is valid SFDX project: ${isSfdxProject}`);
     if (!isSfdxProject) {
         vscode.window.showWarningMessage(
             'SFDX project context not found. SOQL query capture will operate on file content only.'
@@ -259,69 +246,51 @@ export async function activate(context: vscode.ExtensionContext) {
 
     const processTextDocument = (document: vscode.TextDocument | undefined) => {
         if (!document) {
-            console.log('[processTextDocument] Document is undefined, skipping processing.');
             return;
         }
-        console.log(`[processTextDocument] Processing document: ${document.fileName}`);
 
         const languageId = document.languageId;
-        console.log(`[processTextDocument] Document languageId: ${languageId}`);
+
         // Only process 'apex' or 'soql' files.
         if (languageId === 'apex' || languageId === 'soql') {
             const text = document.getText();
             const queries = extractSoqlQueries(text, languageId);
 
-            if (queries.length > 0) {
-                // Log found queries. Replace this with your desired logic to "use" the queries.
-                console.log(`[processTextDocument] SOQL Queries found in ${document.fileName}:`, queries);
-
-                // Example: You could store them, send them to a Language Server,
-                // display them in a custom view, or provide them to other commands.
-                // vscode.window.showInformationMessage(`Captured ${queries.length} SOQL query/queries from ${document.fileName}.`);
-            } else {
-                console.log(`[processTextDocument] No SOQL queries found in ${document.fileName}.`);
-            }
-        } else {
-            console.log(`[processTextDocument] Document languageId '${languageId}' is not 'apex' or 'soql', skipping query extraction.`);
+            // if (queries.length > 0) {
+            //     // TODO: Handle the captured SOQL queries as needed.
+            //     // Example: We could store them, send them to a Language Server,
+            //     // display them in a custom view, or provide them to other commands.
+            //     // vscode.window.showInformationMessage(`Captured ${queries.length} SOQL query/queries from ${document.fileName}.`);
+            // }
         }
     };
 
     // Process the initially active editor, if any, when the extension activates.
     if (vscode.window.activeTextEditor) {
-        console.log('[activate] Processing initially active editor.');
         processTextDocument(vscode.window.activeTextEditor.document);
-    } else {
-        console.log('[activate] No active text editor on activation.');
     }
 
     // Listen for changes in the active text editor (e.g., user switches tabs).
     context.subscriptions.push(
         vscode.window.onDidChangeActiveTextEditor(editor => {
-            console.log('[onDidChangeActiveTextEditor] Event triggered.');
-            if (editor) {
-                console.log(`[onDidChangeActiveTextEditor] New active editor: ${editor.document.fileName}`);
-                processTextDocument(editor.document);
-            } else {
-                console.log('[onDidChangeActiveTextEditor] No active editor.');
+            if (!editor) {
+                return;
             }
+
+            processTextDocument(editor.document);
         })
     );
 
     // Listen for changes in the text content of a document.
     context.subscriptions.push(
         vscode.workspace.onDidChangeTextDocument(event => {
-            console.log(`[onDidChangeTextDocument] Event triggered for document: ${event.document.fileName}`);
             // Check if the changed document is currently active and relevant.
-            if (vscode.window.activeTextEditor && vscode.window.activeTextEditor.document === event.document) {
-                console.log(`[onDidChangeTextDocument] Changed document is the active editor.`);
-                if (event.document.languageId === 'apex' || event.document.languageId === 'soql') {
-                    console.log(`[onDidChangeTextDocument] Processing document due to content change.`);
-                    processTextDocument(event.document);
-                } else {
-                    console.log(`[onDidChangeTextDocument] Active document languageId '${event.document.languageId}' is not 'apex' or 'soql', skipping.`);
-                }
-            } else {
-                console.log(`[onDidChangeTextDocument] Changed document is not the active editor or no active editor, skipping processing for this event.`);
+            if (!vscode.window.activeTextEditor || !(vscode.window.activeTextEditor.document === event.document)) {
+                return;
+            }
+
+            if (event.document.languageId === 'apex' || event.document.languageId === 'soql') {
+                processTextDocument(event.document);
             }
         })
     );
