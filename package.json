@@ -45,6 +45,10 @@
       {
         "command": "sf-ext-plus.fields",
         "title": "Salesforce Ext.+: List Fields"
+      },
+      {
+        "command": "sf-ext-plus.navigateAndRunSoqlQuery",
+        "title": "Salesforce Ext.+: Navigate and run SOQL query"
       }
     ]
   },
