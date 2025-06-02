@@ -59,7 +59,7 @@ async function handleActivation(action: string) {
     clearAndHideStatusBarText(msgId);
 
     const cmdResult: QueryResult<OrgUser> = JSON.parse(shellResult) as QueryResult<OrgUser>;
-    const allUsers: OrgUser[] = cmdResult?.result?.records
+    const allUsers: OrgUser[] = cmdResult?.result?.records;
 
     if (action === UserAction.ActivateUsers) {
         const disabledUsers = allUsers.filter(user => !user.IsActive);
@@ -126,7 +126,7 @@ async function handleFreeze(action: string) {
     clearAndHideStatusBarText(msgId);
 
     const cmdResult: QueryResult<OrgUser> = JSON.parse(shellResult) as QueryResult<OrgUser>;
-    const allActiveUsers: OrgUser[] = cmdResult?.result?.records
+    const allActiveUsers: OrgUser[] = cmdResult?.result?.records;
 
     vscode.window.showInformationMessage(`Found ${allActiveUsers.length} active users in the target org.`);
 
