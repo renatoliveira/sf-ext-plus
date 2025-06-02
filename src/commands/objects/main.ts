@@ -126,6 +126,13 @@ function getWebviewContent(object: any, fields: any[]): string {
     const objectName = path.basename(vscode.window.activeTextEditor?.document.fileName || '', '.object-meta.xml');
     const objectLabel = object.CustomObject?.label?.[0] || objectName;
 
+    // Get additional object features
+    const hasFeed = object.CustomObject?.enableFeeds?.[0] === 'true';
+    const hasHistory = object.CustomObject?.enableHistory?.[0] === 'true';
+    const hasEnhancedLookup = object.CustomObject?.enableEnhancedLookup?.[0] === 'true';
+    const sharingModel = object.CustomObject?.sharingModel?.[0] || 'N/A';
+    const externalSharingModel = object.CustomObject?.externalSharingModel?.[0] || 'N/A';
+
     const sortedFields = [...fields].sort((a, b) => {
         // First sort by type
         const typeA = (a.type?.[0] || '').toLowerCase();
@@ -154,12 +161,30 @@ function getWebviewContent(object: any, fields: any[]): string {
     <html>
     <head>
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 8px; }
-            th { background-color: #f2f2f2; text-align: left; }
-            .api-name { font-family: monospace; cursor: pointer; }
+            body {
+                font-family: var(--vscode-editor-font-family, Arial, sans-serif);
+                margin: 20px;
+                color: var(--vscode-editor-foreground);
+                background-color: var(--vscode-editor-background);
+            }
+            table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+            th, td {
+                border: 1px solid var(--vscode-panel-border, #ddd);
+                padding: 8px;
+            }
+            th {
+                background-color: var(--vscode-editor-selectionBackground);
+                color: var(--vscode-editor-selectionForeground, var(--vscode-editor-foreground));
+                text-align: left;
+            }
+            .api-name {
+                font-family: var(--vscode-editor-font-family, monospace);
+                cursor: pointer;
+            }
             .api-name:hover { text-decoration: underline; }
+            .feature-enabled { color: var(--vscode-charts-green, green); }
+            .feature-disabled { color: var(--vscode-disabledForeground, #888); }
+            h1, h2 { color: var(--vscode-titleBar-activeForeground); }
         </style>
         <script>
             function copyToClipboard(text) {
@@ -169,6 +194,41 @@ function getWebviewContent(object: any, fields: any[]): string {
     </head>
     <body>
         <h1>${objectLabel} Object</h1>
+
+        <div>
+            <h2>Object Configuration</h2>
+            <table>
+                <tr>
+                    <th>Property</th>
+                    <th>Value</th>
+                </tr>
+                <tr>
+                    <td>API Name:</td>
+                    <td><span class="api-name" onclick="copyToClipboard('${objectName}')" title="Click to copy">${objectName}</span></td>
+                </tr>
+                <tr>
+                    <td>Sharing Model:</td>
+                    <td>${sharingModel}</td>
+                </tr>
+                <tr>
+                    <td>External Sharing Model:</td>
+                    <td>${externalSharingModel}</td>
+                </tr>
+                <tr>
+                    <td>Feeds Enabled:</td>
+                    <td class="${hasFeed ? 'feature-enabled' : 'feature-disabled'}">${hasFeed ? 'Yes' : 'No'}</td>
+                </tr>
+                <tr>
+                    <td>History Tracking Enabled:</td>
+                    <td class="${hasHistory ? 'feature-enabled' : 'feature-disabled'}">${hasHistory ? 'Yes' : 'No'}</td>
+                </tr>
+                <tr>
+                    <td>Enhanced Lookup Enabled:</td>
+                    <td class="${hasEnhancedLookup ? 'feature-enabled' : 'feature-disabled'}">${hasEnhancedLookup ? 'Yes' : 'No'}</td>
+                </tr>
+            </table>
+        </div>
+
         <h2>Fields (${fields.length})</h2>
         <table>
             <thead>
@@ -180,14 +240,7 @@ function getWebviewContent(object: any, fields: any[]): string {
                 </tr>
             </thead>
             <tbody>
-                ${fields.map(f =>
-        `<tr>
-                        <td><span class="api-name" onclick="copyToClipboard('${f.name}')" title="Click to copy">${f.name}</span></td>
-                        <td>${f.label?.[0] || ''}</td>
-                        <td>${f.type?.[0] || ''}</td>
-                        <td>${f.description?.[0] || ''}</td>
-                    </tr>`
-    ).join('')}
+                ${fieldRows}
             </tbody>
         </table>
     </body>
