@@ -7,6 +7,7 @@ import { activate as activatePackageCommands } from './commands/packaging/main';
 import { activate as activateFieldsCommands } from './commands/fields/main';
 import { activate as activateSoqlPreviewCommands } from './commands/soql/preview/main';
 import { activate as activateUserManagementCommands } from './commands/userenablement/main';
+import { activate as sObjectPreviewCommands } from './commands/objects/main';
 
 export function activate(context: vscode.ExtensionContext) {
     // #region labels
@@ -49,6 +50,13 @@ export function activate(context: vscode.ExtensionContext) {
     // #region fields commands
 
     activateUserManagementCommands(context);
+
+    // #endregion
+
+
+    // #region fields commands
+
+    sObjectPreviewCommands(context);
 
     // #endregion
 }
