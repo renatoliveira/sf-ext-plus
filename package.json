@@ -53,6 +53,10 @@
       {
         "command": "sf-ext-plus.userManagement",
         "title": "Salesforce Ext.+: Manage Users"
+      },
+      {
+        "command": "sf-ext-plus.viewObjectInfoOnPanel",
+        "title": "Salesforce Ext.+: View Object Information on Panel"
       }
     ]
   },
