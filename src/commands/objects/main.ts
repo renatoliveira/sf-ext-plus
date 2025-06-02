@@ -203,6 +203,19 @@ function getWebviewContent(object: any, fields: any[], filePath: string): string
 
                         focusableElements[nextIndex].focus();
                     }
+                } else if (e.key === 'Enter') {
+                    const focusedElement = document.activeElement;
+                    if (focusedElement && focusedElement.classList.contains('field-cell')) {
+                        e.preventDefault();
+                        copyToClipboard(focusedElement.textContent);
+
+                        // Optional: Show visual feedback
+                        const originalBackground = focusedElement.style.backgroundColor;
+                        focusedElement.style.backgroundColor = 'var(--vscode-editor-selectionBackground)';
+                        setTimeout(() => {
+                            focusedElement.style.backgroundColor = originalBackground;
+                        }, 200);
+                    }
                 }
             });
         </script>
