@@ -17,7 +17,7 @@ export async function activate(_context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(commandFullName, showSObjectOnInfoPanel);
 }
 
-async function openObjectFile(): Promise<vscode.TextEditor | undefined> {
+async function getObjectFilePath(): Promise<string | undefined> {
     // if the user has not opened a file, we will list objects in the workspace and offer them
     // as options
     const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -54,36 +54,27 @@ async function openObjectFile(): Promise<vscode.TextEditor | undefined> {
     }
 
     // Show a quick pick menu with the object files
-    return await vscode.window.showQuickPick(objectFiles.map(file => ({
+    const selected = await vscode.window.showQuickPick(objectFiles.map(file => ({
         label: path.basename(file),
         description: file,
-        detail: `Open ${path.basename(file)}`
+        detail: `View ${path.basename(file)}`
     })), {
         placeHolder: 'Select a Salesforce object metadata file to view'
-    }).then(async selected => {
-        if (!selected) {
-            return undefined;
-        }
-
-        return await vscode.workspace.openTextDocument(selected.description)
-            .then(doc => vscode.window.showTextDocument(doc, vscode.ViewColumn.One));
     });
+
+    return selected?.description;
 }
 
 async function showSObjectOnInfoPanel() {
     // Get the active editor
-    let editor = vscode.window.activeTextEditor || await openObjectFile();
+    const editor = vscode.window.activeTextEditor;
     let filePath = editor?.document.uri.fsPath;
 
     if (!editor || !filePath || !filePath.endsWith('.object-meta.xml')) {
-        editor = await openObjectFile();
-        filePath = editor?.document.uri.fsPath;
+        filePath = await getObjectFilePath();
 
-        console.log('editor: ', editor);
-        console.log('filePath: ', filePath);
-
-        if (!editor || !filePath) {
-            vscode.window.showErrorMessage('No Salesforce object metadata file is open or selected.');
+        if (!filePath) {
+            vscode.window.showErrorMessage('No Salesforce object metadata file is selected.');
             return;
         }
     }
@@ -116,14 +107,14 @@ async function showSObjectOnInfoPanel() {
             { enableScripts: true }
         );
 
-        panel.webview.html = getWebviewContent(objectJson, fields);
+        panel.webview.html = getWebviewContent(objectJson, fields, filePath);
     } catch (error) {
         vscode.window.showErrorMessage(`Error processing object: ${(error as Error).message}`);
     }
 }
 
-function getWebviewContent(object: any, fields: any[]): string {
-    const objectName = path.basename(vscode.window.activeTextEditor?.document.fileName || '', '.object-meta.xml');
+function getWebviewContent(object: any, fields: any[], filePath: string): string {
+    const objectName = path.basename(filePath, '.object-meta.xml');
     const objectLabel = object.CustomObject?.label?.[0] || objectName;
 
     // Get additional object features
