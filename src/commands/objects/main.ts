@@ -102,7 +102,7 @@ async function showSObjectOnInfoPanel() {
         // Create and show webview panel
         const panel = vscode.window.createWebviewPanel(
             'sfObjectViewer',
-            'Salesforce Object Viewer',
+            `Object: ${path.basename(filePath.replace('.object-meta.xml', ''))}`,
             vscode.ViewColumn.Beside,
             { enableScripts: true }
         );
