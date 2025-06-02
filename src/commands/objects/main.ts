@@ -176,11 +176,35 @@ function getWebviewContent(object: any, fields: any[], filePath: string): string
             .feature-enabled { color: var(--vscode-charts-green, green); }
             .feature-disabled { color: var(--vscode-disabledForeground, #888); }
             h1, h2 { color: var(--vscode-titleBar-activeForeground); }
+            .field-row:focus-within {
+                background-color: var(--vscode-list-hoverBackground);
+            }
+            .field-cell:focus {
+                outline: 1px solid var(--vscode-focusBorder);
+                position: relative;
+            }
         </style>
         <script>
             function copyToClipboard(text) {
                 navigator.clipboard.writeText(text);
             }
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    const focusableElements = document.querySelectorAll('.field-cell[tabindex="0"]');
+                    const focusedElement = document.activeElement;
+
+                    if (focusedElement && focusedElement.classList.contains('field-cell')) {
+                        e.preventDefault();
+                        const currentIndex = Array.from(focusableElements).indexOf(focusedElement);
+                        const nextIndex = e.shiftKey ?
+                            (currentIndex - 1 + focusableElements.length) % focusableElements.length :
+                            (currentIndex + 1) % focusableElements.length;
+
+                        focusableElements[nextIndex].focus();
+                    }
+                }
+            });
         </script>
     </head>
     <body>
@@ -195,7 +219,7 @@ function getWebviewContent(object: any, fields: any[], filePath: string): string
                 </tr>
                 <tr>
                     <td>API Name:</td>
-                    <td><span class="api-name" onclick="copyToClipboard('${objectName}')" title="Click to copy">${objectName}</span></td>
+                    <td><span class="api-name" onclick="copyToClipboard('${objectName}')" title="Click to copy" tabindex="0">${objectName}</span></td>
                 </tr>
                 <tr>
                     <td>Sharing Model:</td>
@@ -231,7 +255,14 @@ function getWebviewContent(object: any, fields: any[], filePath: string): string
                 </tr>
             </thead>
             <tbody>
-                ${fieldRows}
+                ${sortedFields.map(f =>
+        `<tr class="field-row">
+                        <td class="field-cell" tabindex="0">${f.name}</td>
+                        <td class="field-cell" tabindex="0">${f.label?.[0] || ''}</td>
+                        <td class="field-cell" tabindex="0">${f.type?.[0] || ''}</td>
+                        <td class="field-cell" tabindex="0">${f.description?.[0] || ''}</td>
+                     </tr>`
+    ).join('')}
             </tbody>
         </table>
     </body>
