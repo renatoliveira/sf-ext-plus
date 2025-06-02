@@ -49,6 +49,10 @@
       {
         "command": "sf-ext-plus.navigateAndRunSoqlQuery",
         "title": "Salesforce Ext.+: Navigate and run SOQL query"
+      },
+      {
+        "command": "sf-ext-plus.userManagement",
+        "title": "Salesforce Ext.+: Manage Users"
       }
     ]
   },
