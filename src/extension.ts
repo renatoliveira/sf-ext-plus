@@ -6,6 +6,7 @@ import { activate as activeProjectFileWatcher } from './commands/appversion/main
 import { activate as activatePackageCommands } from './commands/packaging/main';
 import { activate as activateFieldsCommands } from './commands/fields/main';
 import { activate as activateSoqlPreviewCommands } from './commands/soql/preview/main';
+import { activate as activateUserManagementCommands } from './commands/userenablement/main';
 
 export function activate(context: vscode.ExtensionContext) {
     // #region labels
@@ -42,6 +43,12 @@ export function activate(context: vscode.ExtensionContext) {
     // #region fields commands
 
     activateSoqlPreviewCommands(context);
+
+    // #endregion
+
+    // #region fields commands
+
+    activateUserManagementCommands(context);
 
     // #endregion
 }
