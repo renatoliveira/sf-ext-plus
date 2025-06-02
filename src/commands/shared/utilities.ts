@@ -45,6 +45,11 @@ export function clearAndHideStatusBarText(messageId?: number | undefined) {
     }
 }
 
+/**
+ * Executes a shell command and returns the output.
+ * @param cmd Shell command to execute
+ * @returns Promise that resolves with the command output
+ */
 export const executeShellCommand = (cmd: string) =>
     new Promise<string>((resolve, reject) => {
         cp.exec(cmd, (err, out) => {
