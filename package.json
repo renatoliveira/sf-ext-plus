@@ -2,7 +2,7 @@
   "name": "sf-ext-plus",
   "displayName": "Salesforce Extensions (Plus)",
   "description": "Extra extensions for your Salesforce development",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "icon": "images/icon.png",
   "repository": {
     "url": "https://github.com/renatoliveira/sf-ext-plus",
@@ -10,7 +10,7 @@
   },
   "publisher": "wisefox",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.99.3"
   },
   "categories": [
     "Other"
@@ -86,7 +86,7 @@
     "@jest/globals": "^29.7.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "^20.17.30",
-    "@types/vscode": "^1.100.0",
+    "@types/vscode": "^1.99.3",
     "@typescript-eslint/eslint-plugin": "^8.28.0",
     "@typescript-eslint/parser": "^8.28.0",
     "@vscode/test-cli": "^0.0.10",
